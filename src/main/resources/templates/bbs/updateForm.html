@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>게시글 수정</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <script th:src="@{/js/common.js}" defer></script>
+  <script th:src="@{/js/bbs/updateForm.js}" defer></script>
+</head>
+
+<body>
+  <div class="container">
+    <h3>게시글 수정</h3>
+    <form action="" id="frm" method="post" th:object="${updateForm}">
+      <div class="wrap">
+        <div class="form-group">
+          <label for="bbsId">게시글 ID</label>
+          <input type="text" name="bbsId" id="bbsId" readonly th:value="*{bbsId}">
+        </div>
+        <div class="form-group">
+          <label for="title">제목</label>
+          <input type="text" name="title" id="title" th:value="*{title}" >
+        </div>
+        <div class="err" id="errTitle"></div>
+        <div class="err" th:each="err : ${#fields.errors('title')}" th:text="${err}"></div>
+        <div class="form-group">
+          <label for="contents">내용</label>
+          <textarea name="contents" th:text="*{contents}" ></textarea>
+        </div>
+        <div class="err" id="errContents"></div>
+        <div class="err" th:each="err:${#fields.errors('contents')}" th:text="${err}"></div>
+        <div class="form-group">
+          <label for="writer">작성자</label>
+          <input type="text" name="writer" readonly th:value="*{writer}">
+        </div>
+        <div class="button">
+          <!-- 수정버튼의 타입을 submit으로 설정해, 별도의 JS구문없이 자동으로 폼 제출을 하도록 했습니다.-->
+          <button id="btnUpdate" type="submit">수정</button>
+          <button id="btnCancel" type="button">취소</button>
+          <button id="btnListAll" type="button">목록</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <script type="module">
+    //클라이언트 유효성검사
+
+    import { getBytesSize } from '/js/common.js';
+  // //등록
+ // btnAdd.addEventListener('click', e => {
+ //   e.preventDefault(); // submit 기본 이벤트 막기
+ //   // 오류메시지 초기화
+ //   errTitle.textContent = '';
+ //   errContents.textContent = '';
+
+ //   // 검증
+ //   const titleVal = title.value.trim();
+ //   const contentsVal = contents.value.trim();
+
+     //   //제목
+ //   if (titleVal.length == 0) {
+ //     title.focus();
+ //     errTitle.textContent = '제목은 필수 입력 항목입니다.';
+ //     return;
+ //   } else if (getBytesSize(titleVal) > 100) {
+ //     title.focus();
+ //     errTitle.textContent = '제목은 한글 33자를 초과할수 없습니다.'
+ //     return;
+ //   }
+
+     //   //내용
+ //   if (contentsVal.length == 0) {
+ //     contents.focus();
+ //     errContents.textContent = '내용은 필수 입력 항목입니다.';
+ //     return;
+ //   }
+ //   frm.submit();
+ // }, false);
+  </script>
+</body>
+
+</html>

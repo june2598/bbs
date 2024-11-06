@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>게시글 상세</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <script th:src="@{/js/common.js}" defer></script>
+  <script th:src="@{/js/bbs/detailForm.js}" defer></script>
+</head>
+
+<body>
+  <div class="container">
+    <h3>게시글 상세</h3>
+    <form action="" method="post">
+      <div class="wrap">
+        <div class="form-group">
+          <label for="bbsId">게시글 번호</label>
+          <input type="text" name="bbsId" id="bbsId" readonly th:value="${detailForm.bbsId}">
+        </div>
+        <div class="form-group">
+          <label for="title">제목</label>
+          <input type="text" name="title" id="title" readonly th:value="${detailForm.title}">
+        </div>
+        <div class="form-group">
+          <label for="contents">내용</label>
+          <textarea name="contents" readonly th:text="${detailForm.contents}"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="writer">작성자</label>
+          <input type="text" name="writer" readonly th:value="${detailForm.writer}">
+        </div>
+        <div class="dateWrap">
+          <div class="form-group">
+            <label for="cdate" class="date">작성 날짜</label>
+            <input type="text" name="cdate" readonly th:value="${detailForm.cdate}">
+          </div>
+          <div class="form-group">
+            <label for="udate" class="date">수정 날짜</label>
+            <input type="text" name="udate" readonly th:value="${detailForm.udate}">
+          </div>
+        </div>
+        <div class="button">
+          <button id="btnUpdate" type="button">수정</button>
+          <button id="btnDelete" type="button">삭제</button>
+          <button id="btnListAll" type="button">목록</button>
+        </div>
+      </div>
+    </form>
+  </div>
+<script type="module">
+  import { getBytesSize } from '/js/common.js';
+</script>
+</body>
+
+</html>
