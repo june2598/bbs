@@ -11,10 +11,12 @@ import java.util.Map;
 @Slf4j
 @Getter
 @ToString
+
+//ApiResponse : 응답메세지 구조 정의
 public class ApiResponse<T> {
   private Header header;    //응답헤더
-  private T body;           //응답바디
-  private int totalCnt;     //총건수
+  private T body;          //응답바디
+  private int totalCnt;    //총건수
 
   private ApiResponse(Header header, T body, int totalCnt) {
     this.header = header;
@@ -22,9 +24,10 @@ public class ApiResponse<T> {
     this.totalCnt = totalCnt;
   }
 
+  // 1. 기본 헤더 (details가 없는 경우)
   @Getter
   @ToString
-  private static class Header{
+  private static class Header {
     private String rtcd;      //응답코드
     private String rtmsg;     //응답메시지
 
@@ -34,20 +37,48 @@ public class ApiResponse<T> {
     }
   }
 
-  public static <T> ApiResponse<T> createApiResponse(String rtcd, String rtmsg, T body){
-    int totalCnt = 0;
+  // 2. 상세 정보가 포함된 헤더 (이너클래스), 요청클라이언트의 상세 오류 메세지
+  @Getter
+  @ToString
+  private static class DetailHeader extends Header {
+    private Map<String, String> details; //응답오류 상세
 
-    if(body != null) {
-      // 바디가 collection계열인지 요소갯수 가져오기
-      if (ClassUtils.isAssignable(Collection.class, body.getClass())) {
-        totalCnt = ((Collection<?>) body).size();
-        // 바디가 Map계열인지 체크하여 요소갯수 가져오기
-      } else if (ClassUtils.isAssignable(Map.class, body.getClass())) {
-        totalCnt = ((Map<?, ?>) body).size();
-      } else {
-        totalCnt = 1;
-      }
+    DetailHeader(String rtcd, String rtmsg, Map<String, String> details) {
+      super(rtcd, rtmsg);
+      this.details = details;
     }
-    return new ApiResponse<>(new Header(rtcd,rtmsg), body, totalCnt);
+  }
+
+  // 3. 기본 응답 생성 (details 없는 경우)
+  public static <T> ApiResponse<T> of(ApiResponseCode responseCode, T body) {
+    return new ApiResponse<>(
+        new Header(responseCode.getRtcd(), responseCode.getRtmsg()),
+        body,
+        calculateTotalCount(body)
+    );
+  }
+
+  // 4. 상세 정보를 포함한 응답 생성
+  public static <T> ApiResponse<T> withDetails(
+      ApiResponseCode responseCode,
+      Map<String, String> details,
+      T body) {
+    return new ApiResponse<>(
+        new DetailHeader(responseCode.getRtcd(), responseCode.getRtmsg(), details),
+        body,
+        calculateTotalCount(body)
+    );
+  }
+
+  // 5. totalCnt 계산 로직
+  private static <T> int calculateTotalCount(T body) {
+    if (body == null) return 0;
+
+    if (ClassUtils.isAssignable(Collection.class, body.getClass())) {
+      return ((Collection<?>) body).size();
+    } else if (ClassUtils.isAssignable(Map.class, body.getClass())) {
+      return ((Map<?, ?>) body).size();
+    }
+    return 1;
   }
 }

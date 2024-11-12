@@ -3,11 +3,16 @@ package com.example.demo.web;
 import com.example.demo.domain.bbs.svc.ReplyBbsSVC;
 import com.example.demo.domain.entity.ReplyBbs;
 import com.example.demo.web.api.ApiResponse;
+import com.example.demo.web.api.ApiResponseCode;
+import com.example.demo.web.exception.BusinessException;
 import com.example.demo.web.req.ReqSave;
 import com.example.demo.web.req.ReqUpdate;
+import com.example.demo.web.util.khUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,74 +32,135 @@ public class ApiReplyBbsController {
   public ApiResponse<List<ReplyBbs>> all() {
     ApiResponse<List<ReplyBbs>> res = null;
     List<ReplyBbs> replyBbsList = replyBbsSVC.listAll();
-    if(replyBbsList.size() != 0){
-      res = ApiResponse.createApiResponse("00", "success", replyBbsList);
-    }else{
-      res = ApiResponse.createApiResponse("01", "fail", null);
+    if (replyBbsList.size() != 0) {
+      res = ApiResponse.of(ApiResponseCode.SUCCESS, replyBbsList);
+    } else {
+      throw new BusinessException(ApiResponseCode.ENTITY_NOT_FOUND, null);
     }
     return res;
   }
 
   //댓글 등록
   @PostMapping
-  public ApiResponse<ReplyBbs> add(@RequestBody ReqSave reqSave){
-    log.info("reqSave={}",reqSave);
+  public ApiResponse<ReplyBbs> add(
+      @Valid
+      @RequestBody ReqSave reqSave,
+      BindingResult bindingResult) {
+    log.info("reqSave={}", reqSave);
     ApiResponse<ReplyBbs> res = null;
+
+    //요청 데이터 유효성 체크
+    //1. 어노테이션 기반의 필드 검증
+    if (bindingResult.hasErrors()) {
+      log.info("bindingResult={}", bindingResult);
+      throw new BusinessException(ApiResponseCode.VALIDATION_ERROR, khUtil.getValidChkMap(bindingResult));
+    }
+
+    //2. 코드기반 검증
+    //필드 오류 : 댓글 길이 100자 초과 불가
+    if (reqSave.getComments().length() > 100) {
+      bindingResult.rejectValue("comments", null, "댓글내용 100자 초과 불가");
+    }
+
+    //필드 오류 2 : 댓글 작성자 길이 10자 초과 불가
+    if (reqSave.getWriter().length() > 10) {
+      bindingResult.rejectValue("writer", null, "작성자명 10자 초과불가");
+    }
+
+    //필드 오류 3 : 댓글 작성자명에 특수문자 사용 불가
+    if (reqSave.getWriter().matches(".*[<>?;:!@#$%^&*()_+=-].*")) {
+      bindingResult.rejectValue("writer", null, "작성자명에 허용되지 않는 문자가 포함되어 있습니다.");
+    }
+
+
+
+    if (bindingResult.hasErrors()) {
+      log.info("bindingResult={}", bindingResult);
+      throw new BusinessException(ApiResponseCode.VALIDATION_ERROR, khUtil.getValidChkMap(bindingResult));
+    }
+
     ReplyBbs replyBbs = new ReplyBbs();
     BeanUtils.copyProperties(reqSave, replyBbs);
     Long rid = replyBbsSVC.save(replyBbs);
 
+    log.info("replyBbs={}", replyBbs);
+
     Optional<ReplyBbs> optionalReply = replyBbsSVC.findById(rid);
-    if(optionalReply.isPresent()){
+    if (optionalReply.isPresent()) {
       ReplyBbs savedReply = optionalReply.get();
-      res = ApiResponse.createApiResponse("00", "success", savedReply);
-    }else{
-      res = ApiResponse.createApiResponse("01", "fail", null);
-    }
-    return res;
-    }
-  //댓글 삭제
-  @DeleteMapping("/{rid}")
-  public ApiResponse delete(@PathVariable("rid") Long rid){
-    ApiResponse res = null;
-
-    int rows = replyBbsSVC.deleteById(rid);
-    if(rows == 1){
-      res = ApiResponse.createApiResponse("00", "success", null);
-    }else{
-      res = ApiResponse.createApiResponse("01", "fail", null);
-    }
-    return res;
-    }
-
-    //댓글수정
-  @PatchMapping("/{rid}")
-  public ApiResponse update(@PathVariable("rid") Long rid, @RequestBody ReqUpdate reqUpdate) {
-    log.info("reqUpdate={}", "reqUpdate={}", rid, reqUpdate);
-    ApiResponse res = null;
-
-    ReplyBbs replyBbs = new ReplyBbs();
-    BeanUtils.copyProperties(reqUpdate,replyBbs);
-    int rows = replyBbsSVC.updateById(rid, replyBbs);
-    if(rows == 1){
-      ReplyBbs updatedReply = replyBbsSVC.findById(rid).get();
-      res = ApiResponse.createApiResponse("00", "success", updatedReply);
-    }else{
-      res = ApiResponse.createApiResponse("01", "fail", null);
+      res = ApiResponse.of(ApiResponseCode.SUCCESS, savedReply);
+    } else {
+      throw new BusinessException(ApiResponseCode.INTERNAL_SERVER_ERROR, null);
     }
     return res;
   }
+
+  //댓글 삭제
+  @DeleteMapping("/{rid}")
+  public ApiResponse delete(@PathVariable("rid") Long rid) {
+    ApiResponse res = null;
+
+    int rows = replyBbsSVC.deleteById(rid);
+    if (rows == 1) {
+      res = ApiResponse.of(ApiResponseCode.SUCCESS, null);
+    } else {
+      throw new BusinessException(ApiResponseCode.ENTITY_NOT_FOUND, null);
+    }
+    return res;
+  }
+
+  //댓글수정
+  @PatchMapping("/{rid}")
+  public ApiResponse update(
+      @PathVariable("rid") Long rid,
+      @Valid @RequestBody ReqUpdate reqUpdate,
+      BindingResult bindingResult) {
+    log.info("reqUpdate={}", "reqUpdate={}", rid, reqUpdate);
+    ApiResponse res = null;
+
+    //요청 데이터 유효성 체크
+    //1. 어노테이션 기반의 필드 검증
+    if (bindingResult.hasErrors()) {
+      log.info("bindingResult={}", bindingResult);
+      throw new BusinessException(ApiResponseCode.VALIDATION_ERROR, khUtil.getValidChkMap(bindingResult));
+    }
+
+    //2. 코드기반 검증
+    //필드 오류 : 댓글 길이 100자 초과 불가
+    if (reqUpdate.getComments().length() > 100) {
+      bindingResult.rejectValue("comments", null, "댓글내용 100자 초과 불가");
+    }
+
+    if (bindingResult.hasErrors()) {
+      log.info("bindingResult={}", bindingResult);
+      throw new BusinessException(ApiResponseCode.VALIDATION_ERROR, khUtil.getValidChkMap(bindingResult));
+    }
+
+
+
+    ReplyBbs replyBbs = new ReplyBbs();
+    BeanUtils.copyProperties(reqUpdate, replyBbs);
+    int rows = replyBbsSVC.updateById(rid, replyBbs);
+    if (rows == 1) {
+      ReplyBbs updatedReply = replyBbsSVC.findById(rid).get();
+      res = ApiResponse.of(ApiResponseCode.SUCCESS, updatedReply);
+    } else {
+      res = ApiResponse.of(ApiResponseCode.ENTITY_NOT_FOUND, null);
+    }
+    return res;
+  }
+
   //댓글조회
   @GetMapping("/{rid}")
-  public ApiResponse<ReplyBbs> findbyId(@PathVariable("rid") Long rid){
+  public ApiResponse<ReplyBbs> findbyId(@PathVariable("rid") Long rid) {
     ApiResponse<ReplyBbs> res = null;
     Optional<ReplyBbs> optionalReply = replyBbsSVC.findById(rid);
 
-    if(optionalReply.isPresent()){
+    if (optionalReply.isPresent()) {
       ReplyBbs replyBbs = optionalReply.get();
-      res = ApiResponse.createApiResponse("00", "success", replyBbs);
-    }else{
-      res = ApiResponse.createApiResponse("01", "fail", null);
+      res = ApiResponse.of(ApiResponseCode.SUCCESS, replyBbs);
+    } else {
+      res = ApiResponse.of(ApiResponseCode.ENTITY_NOT_FOUND, null);
     }
     return res;
   }

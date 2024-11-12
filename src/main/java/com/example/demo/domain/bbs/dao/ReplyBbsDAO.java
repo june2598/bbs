@@ -21,4 +21,5 @@ public interface ReplyBbsDAO {
 
   //댓글수정
   int updateById(Long replyId, ReplyBbs replyBbs);
+
 }

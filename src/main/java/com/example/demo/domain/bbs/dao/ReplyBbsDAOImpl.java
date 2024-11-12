@@ -29,8 +29,8 @@ public class ReplyBbsDAOImpl implements ReplyBbsDAO{
   @Override
   public Long save(ReplyBbs replybbs) {
     StringBuffer sql = new StringBuffer();
-    sql.append("insert into replybbs (reply_id,bbs_id,comments,writer,cdate,udate) ");
-    sql.append("values(replybbs_reply_id_seq.nextval,43, :writer, :comments, sysdate, sysdate)");
+    sql.append("insert into replybbs (reply_id,bbs_id,writer,comments,cdate) ");
+    sql.append("values(replybbs_reply_id_seq.nextval,43, :writer, :comments, sysdate )");
 
     SqlParameterSource param = new BeanPropertySqlParameterSource(replybbs);
     KeyHolder keyholder = new GeneratedKeyHolder();
@@ -100,4 +100,5 @@ public class ReplyBbsDAOImpl implements ReplyBbsDAO{
     }
     return Optional.of(replyBbs);
   }
+
 }

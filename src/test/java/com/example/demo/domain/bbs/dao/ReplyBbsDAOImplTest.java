@@ -23,8 +23,8 @@ class ReplyBbsDAOImplTest {
   void save() {
     log.info("save()호출됨");
     ReplyBbs replyBbs = new ReplyBbs();
-    replyBbs.setComments("댓글내용2");
-    replyBbs.setWriter("댓글작성자1");
+    replyBbs.setComments("댓글내용44");
+    replyBbs.setWriter("댓글작성자2244422322");
     Long rid = replyBbsDAO.save(replyBbs);
     log.info("댓글아이디={}", rid);
   }
