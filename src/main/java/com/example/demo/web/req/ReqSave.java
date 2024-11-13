@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @ToString
 public class ReqSave {
 
+  private Long bbsId;
+
   @NotBlank
   @Size(max = 10, message = "댓글 작성자명은 10글자를 초과할 수 없음")
   private String writer;

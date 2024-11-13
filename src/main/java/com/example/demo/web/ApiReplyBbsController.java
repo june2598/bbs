@@ -42,45 +42,49 @@ public class ApiReplyBbsController {
 
   //댓글 등록
   @PostMapping
-  public ApiResponse<ReplyBbs> add(
-      @Valid
-      @RequestBody ReqSave reqSave,
-      BindingResult bindingResult) {
-    log.info("reqSave={}", reqSave);
-    ApiResponse<ReplyBbs> res = null;
 
-    //요청 데이터 유효성 체크
-    //1. 어노테이션 기반의 필드 검증
+  public ApiResponse<ReplyBbs> add(
+      @Valid @RequestBody ReqSave reqSave,
+      BindingResult bindingResult) {
+
+    log.info("reqSave={}", reqSave);
+    ApiResponse<ReplyBbs> res;
+
+    // 요청 데이터 유효성 체크
+    // 어노테이션 기반의 필드 검증
     if (bindingResult.hasErrors()) {
       log.info("bindingResult={}", bindingResult);
       throw new BusinessException(ApiResponseCode.VALIDATION_ERROR, khUtil.getValidChkMap(bindingResult));
     }
 
-    //2. 코드기반 검증
-    //필드 오류 : 댓글 길이 100자 초과 불가
+    // 코드 기반 검증
+    // 댓글 길이 100자 초과 불가
     if (reqSave.getComments().length() > 100) {
       bindingResult.rejectValue("comments", null, "댓글내용 100자 초과 불가");
     }
 
-    //필드 오류 2 : 댓글 작성자 길이 10자 초과 불가
+    // 댓글 작성자 길이 10자 초과 불가
     if (reqSave.getWriter().length() > 10) {
       bindingResult.rejectValue("writer", null, "작성자명 10자 초과불가");
     }
 
-    //필드 오류 3 : 댓글 작성자명에 특수문자 사용 불가
+    // 댓글 작성자명에 특수문자 사용 불가
     if (reqSave.getWriter().matches(".*[<>?;:!@#$%^&*()_+=-].*")) {
       bindingResult.rejectValue("writer", null, "작성자명에 허용되지 않는 문자가 포함되어 있습니다.");
     }
-
-
 
     if (bindingResult.hasErrors()) {
       log.info("bindingResult={}", bindingResult);
       throw new BusinessException(ApiResponseCode.VALIDATION_ERROR, khUtil.getValidChkMap(bindingResult));
     }
 
+    // ReplyBbs 객체 생성
     ReplyBbs replyBbs = new ReplyBbs();
     BeanUtils.copyProperties(reqSave, replyBbs);
+
+    // 게시글 ID 설정
+    replyBbs.setBbsId(reqSave.getBbsId()); // 게시글 ID 설정
+
     Long rid = replyBbsSVC.save(replyBbs);
 
     log.info("replyBbs={}", replyBbs);
@@ -94,6 +98,58 @@ public class ApiReplyBbsController {
     }
     return res;
   }
+//  public ApiResponse<ReplyBbs> add(
+//      @Valid
+//      @RequestBody ReqSave reqSave,
+//      BindingResult bindingResult) {
+//    log.info("reqSave={}", reqSave);
+//    ApiResponse<ReplyBbs> res = null;
+//
+//    //요청 데이터 유효성 체크
+//    //1. 어노테이션 기반의 필드 검증
+//    if (bindingResult.hasErrors()) {
+//      log.info("bindingResult={}", bindingResult);
+//      throw new BusinessException(ApiResponseCode.VALIDATION_ERROR, khUtil.getValidChkMap(bindingResult));
+//    }
+//
+//    //2. 코드기반 검증
+//    //필드 오류 : 댓글 길이 100자 초과 불가
+//    if (reqSave.getComments().length() > 100) {
+//      bindingResult.rejectValue("comments", null, "댓글내용 100자 초과 불가");
+//    }
+//
+//    //필드 오류 2 : 댓글 작성자 길이 10자 초과 불가
+//    if (reqSave.getWriter().length() > 10) {
+//      bindingResult.rejectValue("writer", null, "작성자명 10자 초과불가");
+//    }
+//
+//    //필드 오류 3 : 댓글 작성자명에 특수문자 사용 불가
+//    if (reqSave.getWriter().matches(".*[<>?;:!@#$%^&*()_+=-].*")) {
+//      bindingResult.rejectValue("writer", null, "작성자명에 허용되지 않는 문자가 포함되어 있습니다.");
+//    }
+//
+//
+//
+//    if (bindingResult.hasErrors()) {
+//      log.info("bindingResult={}", bindingResult);
+//      throw new BusinessException(ApiResponseCode.VALIDATION_ERROR, khUtil.getValidChkMap(bindingResult));
+//    }
+//
+//    ReplyBbs replyBbs = new ReplyBbs();
+//    BeanUtils.copyProperties(reqSave, replyBbs);
+//    Long rid = replyBbsSVC.save(replyBbs);
+//
+//    log.info("replyBbs={}", replyBbs);
+//
+//    Optional<ReplyBbs> optionalReply = replyBbsSVC.findById(rid);
+//    if (optionalReply.isPresent()) {
+//      ReplyBbs savedReply = optionalReply.get();
+//      res = ApiResponse.of(ApiResponseCode.SUCCESS, savedReply);
+//    } else {
+//      throw new BusinessException(ApiResponseCode.INTERNAL_SERVER_ERROR, null);
+//    }
+//    return res;
+//  }
 
   //댓글 삭제
   @DeleteMapping("/{rid}")
