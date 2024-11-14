@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원가입</title>
+  <style>
+
+    /* * {
+     outline: 1px solid red;
+   } */
+
+   body{
+     display: flex;
+     justify-content: center;
+   }
+
+   .container{
+     display:flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     max-width: 500px;
+     padding: 15px;
+   }
+
+   .title{
+     margin-bottom: 25px 0;
+   }
+
+   .form-group{
+     display: flex;
+     flex-direction: column;
+     margin: 10px 0;
+   }
+   .form-group > label{
+     margin-bottom: 10px;
+   }
+    .field-err{
+     font-size: 0.7rem;
+     font-weight: bold;
+     color: red;
+    }
+
+   .button {
+     text-align: end;
+   }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h3 class="title">회원가입</h3>
+    <form class="join_form" method="post" action="" th:object="${joinForm}">
+      <div class="form-group">
+        <label for="email">이메일</label>
+        <input type="text" th:field="*{email}">
+        <div class="field-err" th:each="err : ${#fields.errors('email')}">
+          <span th:text="${err}"></span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="passwd">비밀번호</label>
+        <input type="password" th:field="*{passwd}">
+        <div class="field-err" th:each="err : ${#fields.errors('passwd')}">
+          <span th:text="${err}"></span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="pwdchk">비밀번호확인</label>
+        <input type="password" name="passwdChk" id="">
+      </div>
+      <div class="form-group">
+        <label for="nickname">별칭</label>
+        <input type="text" th:field="*{nickname}">
+        <div class="field-err" th:each="err : ${#fields.errors('nickname')}">
+          <span th:text="${err}"></span>
+        </div>
+      </div>
+      <div class="button">
+        <button type="submit">가입</button>
+        <button>취소</button>
+      </div>
+    </form>
+  </div>
+</body>
+
+</html>

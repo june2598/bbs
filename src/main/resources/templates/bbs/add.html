@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>게시글 작성</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <script th:src="@{/js/common.js}" defer></script>
+</head>
+
+<body>
+  <div class="container">
+    <h3>게시글 등록</h3>
+    <form action="" id="frm" method="post" th:object="${saveForm}">
+      <div class="wrap">
+        <div class="form-group">
+          <label for="title">제목</label>
+          <input type="text" name="title" id="title" th:value="*{title}">
+        </div>
+        <div class="err" id="errTitle"></div>
+        <div class="err" th:each="err : ${#fields.errors('title')}" th:text="${err}"></div>
+        <div class="form-group">
+          <label for="writer">작성자</label>
+          <input type="text" name="writer" id="writer" th:value="*{writer}">
+        </div>
+        <div class="err" id="errWriter"></div>
+        <div class="err" th:each="err:${#fields.errors('writer')}" th:text="${err}"></div>
+        <div class="form-group">
+          <label for="contents">내용</label>
+          <textarea name="contents" id="contents" th:value="*{contents}"></textarea>
+        </div>
+        <div class="err" id="errContents"></div>
+        <div class="err" th:each="err:${#fields.errors('contents')}" th:text="${err}"></div>
+        <div class="button">
+          <button type="submit" id="btnAdd">등록</button>
+          <button type="button" id="btnListAll">목록</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <script type="module">
+  //클라이언트 유효성검사
+    import { getBytesSize } from '/js/common.js';
+
+   //등록
+  //  btnAdd.addEventListener('click', e => {
+  //    e.preventDefault(); // submit 기본 이벤트 막기
+  //    // 오류메시지 초기화
+  //    errTitle.textContent = '';
+  //    errWriter.textContent = '';
+  //    errContents.textContent = '';
+
+  //    // 검증
+  //    const titleVal = title.value.trim();
+  //    const writerVal = writer.value.trim();
+  //    const contentsVal = contents.value.trim();
+
+  //    //제목
+  //    if (titleVal.length == 0) {
+  //      title.focus();
+  //      errTitle.textContent = '제목은 필수 입력 항목입니다.';
+  //      return;
+  //    } else if (getBytesSize(titleVal) > 100) {
+  //      title.focus();
+  //      errTitle.textContent = '제목은 한글 33자를 초과할수 없습니다.'
+  //      return;
+  //    }
+
+  //    //작성자
+  //    if (writerVal.length == 0) {
+  //      writer.focus();
+  //      errWriter.textContent = '작성자는 필수 입력 항목입니다.';
+  //      return;
+  //    } else if (getBytesSize(writerVal) > 30) {
+  //      writer.focus();
+  //      errWriter.textContent = '작성자는 한글 10자 를 초과할 수 없습니다.'
+  //      return;
+  //    }
+
+  //    //내용
+  //    if (contentsVal.length == 0) {
+  //      contents.focus();
+  //      errContents.textContent = '내용은 필수 입력 항목입니다.';
+  //      return;
+  //    }
+  //    frm.submit();
+  //  }, false);
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,226 @@
+@charset "UTF-8";
+
+/*기본 스타일 */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  margin: 0;
+  padding: 20px;
+}
+.wrap {
+  width: 100%;
+}
+
+ul {
+  padding: 0;
+}
+
+/*container 스타일*/
+.container,
+.reply-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 헤더 스타일*/
+h3 {
+  text-align: center;
+  color: #333;
+}
+
+/*오류 메시지 스타일 */
+.err {
+  color: red;
+  font-weight: bold;
+  font-size: 0.8rem;
+  margin-left: 120px;
+
+}
+
+/*form-group 영역 스타일*/
+.form-group {
+  display: flex;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.form-group label {
+  flex: 1;
+  margin-right: 10px;
+  text-align: right;
+}
+
+.form-group input,
+.form-group textarea {
+  flex: 8;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  width: 100%;
+}
+/*날짜 표시 영역 */
+
+.form-group label.date {
+  flex: 4;
+  text-align: right;
+}
+
+.dateWrap {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+
+/*외부 textarea영역 */
+textarea {
+  height: 200px;
+  resize: none;
+  /* textarea 크기조절 안되게 */
+  color: #000;
+  font-weight: bold;
+  padding: 10px;
+  /* 텍스트 영역 패딩 증가 */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+  /* 버튼과 간격 추가 */
+}
+
+/*외부 버튼 스타일 */
+.button {
+  text-align: right;
+  margin-top: 20px;
+}
+
+.button button {
+  padding: 10px 15px;
+  margin-left: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.button button:hover {
+  background-color: #0056b3;
+}
+
+
+/* 댓글 영역 스타일*/
+
+.reply-container {
+  margin-top: 20px;
+  /* 댓글 섹션과 게시글 간격 추가 */
+}
+
+.reply-title,
+.replyAdd-title {
+  display: flex;
+  justify-content: space-between;
+  /* 제목을 양쪽으로 정렬 */
+  margin-bottom: 10px;
+  /* 제목 간격 추가 */
+}
+
+.comment {
+  display: flex;
+  align-items: center;
+  /* 댓글 입력 영역 중앙 정렬 */
+  margin-bottom: 10px;
+  /* 댓글 입력 영역과 버튼 간격 추가 */
+}
+
+
+.blankArea {
+  flex: 1;
+  margin-right: 10px;
+  text-align: right;
+}
+
+.comment>#comment {
+  flex: 8;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100px;
+  
+}
+
+/*댓글영역 내부 버튼 스타일 */
+
+.btnAdd {
+  text-align: right;
+  margin-top: 20px;
+}
+
+/*댓글 Wrap 계열 */
+#replyWrap {
+  display: flex;
+  flex-direction: column;
+
+}
+
+.replyInnerWrap {
+  display: flex;
+  margin: 5px 0;
+  padding: 5px;
+  /* 댓글 패딩 추가 */
+}
+
+.replyInnerWrap li {
+  display: flex;
+  border: 1px solid #ccc; /* 부드러운 테두리 색상 */
+  border-radius: 4px; /* 모서리를 둥글게 */
+  padding: 10px;
+  margin: 5px 0; 
+  flex: 8;
+
+}
+.replyInnerWrap>li>span,
+.replyInnerWrap>li>textarea {
+  flex: 8.5;
+}
+
+.replyInnerWrap>li>textarea {
+  height: 100px;
+}
+
+.replyInnerWrap span.innerBtn {
+  text-align: right;
+  flex: 1.5;
+  align-content: end;
+}
+
+#reply-header,
+#replyAdd-header {
+  flex: 8;
+  text-align: left;
+}
+
+.btn.delBtn,
+.btn.cancelBtn {
+  margin-left: 5px;
+}
+
+/*댓글 에러 영역 */
+.errorWrap{
+display:flex;
+}
+
+.errorWrap .errmsg{
+flex:8;
+color:red;
+font-weight:bold;
+}
+
+
+

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>게시글목록</title>
+  <link rel="stylesheet" th:href="@{/css/bbs/list.css}">
+  <script th:src="@{/js/bbs/list.js}" defer></script>
+</head>
+
+<body>
+<div class="container">
+  <h3>게시글목록</h3>
+  <form action="/bbs/del" method="post" id="frm">
+    <table>
+      <thead>
+      <tr class="index">
+        <th><input type="checkbox" id="selectAll"><label for="selectAll">전체 선택</label></th>
+        <th>게시글번호</th>
+        <th>작성자</th>
+        <th class="title">제목</th>
+        <th>작성날짜</th>
+        <th>수정날짜</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="bbs : ${all}">
+        <td><input type="checkbox" name="bbsIds" id="" th:value="${bbs.bbsId}"></td>
+        <td th:text="${bbs.bbsId}">1</td>
+        <td th:text="${bbs.writer}">작성자</td>
+        <td class="title">
+          <a th:href="@{/bbs/{id}/(id=${bbs.bbsId})}" th:text="${bbs.title}">제목</a>
+        </td>
+        <td th:text="${bbs.cdate}">작성 날짜</td>
+        <td th:text="${bbs.udate}">수정 날짜</td>
+      </tr>
+      </tbody>
+    </table>
+  </form>
+  <div class="buttonWrap">
+    <button id="btnDels">삭제</button>
+    <button class="btnAdd" id="btnAdd">게시글작성</button>
+  </div>
+</div>
+</body>
+</html>
