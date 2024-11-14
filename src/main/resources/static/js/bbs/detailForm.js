@@ -66,18 +66,18 @@ $btnAdd.addEventListener('click', e => {
     } else {
         errorMessageDiv.style.display = 'none'; // 에러 메시지 숨기기
     }
-    
-                   const $p = document.createElement('p');
-                   $p.className = "replyInnerWrap";
-                   $reply.appendChild($p);
-                   const $span = document.createElement('span');
-                   $span.className = "blankArea";
-                   $p.appendChild($span);
-                   const $li = createLiReadMode(comment.value);
-                   $p.appendChild($li);
-                   comment.value = '';
-           }, false);
-  
+
+    const $p = document.createElement('p');
+    $p.className = "replyInnerWrap";
+    $reply.appendChild($p);
+    const $span = document.createElement('span');
+    $span.className = "blankArea";
+    $p.appendChild($span);
+    const $li = createLiReadMode(comment.value);
+    $p.appendChild($li);
+    comment.value = '';
+}, false);
+
 
 
 
