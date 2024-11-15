@@ -8,9 +8,16 @@
 </head>
 <body>
 <h1>인덱스페이지</h1>
-<ul>
-  <li><a href="/bbs">게시판</a></li>
+<ul th:if="${session.isEmpty()}">
+  <li><a href="/login">로그인</a></li>
+  <li><a href="/bbs">게시판(SSR)</a></li>
+  <li><a href="/members/join">회원가입(SSR)</a></li>
 </ul>
+<ul th:if="${!session.isEmpty()}">
+  <li><a href="/logout">로그아웃</a></li>
+  <li><a href="/bbs">게시판(로그인됨)</a></li>
+</ul>
+
 
 </body>
 </html>

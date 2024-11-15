@@ -32,7 +32,7 @@ public class ApiReplyBbsController {
   public ApiResponse<List<ReplyBbs>> all() {
     ApiResponse<List<ReplyBbs>> res = null;
     List<ReplyBbs> replyBbsList = replyBbsSVC.listAll();
-    if (replyBbsList.size() != 0) {
+    if (!replyBbsList.isEmpty()) {
       res = ApiResponse.of(ApiResponseCode.SUCCESS, replyBbsList);
     } else {
       throw new BusinessException(ApiResponseCode.ENTITY_NOT_FOUND, null);

@@ -6,6 +6,7 @@ import com.example.demo.web.form.bbs.AllForm;
 import com.example.demo.web.form.bbs.DetailForm;
 import com.example.demo.web.form.bbs.SaveForm;
 import com.example.demo.web.form.bbs.UpdateForm;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,9 +73,10 @@ public class BBSController {
       @Valid
       @ModelAttribute SaveForm saveForm,
       BindingResult bindingResult,
-      RedirectAttributes redirectAttributes) {
-    //사용자의 입력정보
-    log.info("title={}, writer={}, contents={}", saveForm.getTitle(), saveForm.getWriter(), saveForm.getContents());
+      RedirectAttributes redirectAttributes,
+      HttpSession session) {
+    String nickname = (String) session.getAttribute("nickname");
+log.info(nickname);
     // 서버 데이터 오류 처리 유효성검사 : 실패시
     if (bindingResult.hasErrors()) {
       return "/bbs/add";
@@ -84,23 +86,22 @@ public class BBSController {
     if(saveForm.getTitle().length() > 33){
       bindingResult.rejectValue("title",null,"제목 길이 33자 초과 불가");
     }
-
-    //작성자 이름 제한 조건 : 10글자 초과 불가(varchar(30))
-    if(saveForm.getWriter().length() > 10) {
-      bindingResult.rejectValue("writer",null,"작성자 이름 10자 초과 불가");
-    }
+//
+//    //작성자 이름 제한 조건 : 10글자 초과 불가(varchar(30))
+//    if(saveForm.getWriter().length() > 10) {
+//      bindingResult.rejectValue("writer",null,"작성자 이름 10자 초과 불가");
+//    }
 
     if (bindingResult.hasErrors()) {
       return "/bbs/add"; //폼으로 다시 리다이렉트
     }
-
-
-
-
+    //사용자의 입력정보
+    log.info("title={}, writer={}, contents={}", saveForm.getTitle(), saveForm.getWriter(), saveForm.getContents());
     //게시글 테이블에 저장할 데이터 설정
     Bbs bbs = new Bbs();
     bbs.setTitle(saveForm.getTitle());
-    bbs.setWriter(saveForm.getWriter());
+//    String nickname = (String) session.getAttribute("nickname");
+//    bbs.setWriter(nickname);
     bbs.setContents(saveForm.getContents());
 
     //게시글을 저장하고 생성된 id를 반환받아 bid에 저장

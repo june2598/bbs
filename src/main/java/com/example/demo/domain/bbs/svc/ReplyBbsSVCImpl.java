@@ -18,6 +18,7 @@ public class ReplyBbsSVCImpl implements ReplyBbsSVC{
 
   @Override
   public Long save(ReplyBbs replyBbs) {
+
     return replyBbsDAO.save(replyBbs);
   }
 
