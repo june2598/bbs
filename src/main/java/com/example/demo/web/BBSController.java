@@ -35,6 +35,8 @@ public class BBSController {
   //모든 게시글 목록을 조회후 반환하는 메소드. Model 객체를 통해 데이터를 뷰로 전달
   public String listAll(Model model) {
 
+
+
     //모든 게시글 조회
     List<Bbs> list = bbsSVC.listAll();
     //게시글 정보를 담을 리스트생성

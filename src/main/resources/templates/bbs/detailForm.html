@@ -98,6 +98,18 @@
 </div>
 
 <script type="module">
+//      /*[[...]]*/ 형식은 Thymeleaf의 표현식을 JavaScript 코드 내에서 사용할 때 사용합니다. 
+//      이 표현식은 서버에서 처리된 후 결과가 HTML로 렌더링됩니다.
+// const session = /*[[${session}]]*/ {};           // Thymeleaf로 session 객체를 JavaScript 변수로 설정
+// console.log(session);
+
+//서버에서 session 객체를 클라이언트로 전달할 때, 필요한 정보만 선택적으로 전달하는 것이 좋습니다. 
+//예를 들어, nickname과 로그인 상태만 전달할 수 있습니다:
+// const session = {
+//     loginOkMember: /*[[${session.loginOkMember}]]*/ null,
+//     nickname: /*[[${session.loginOkMember != null ? session.loginOkMember.nickname : ''}]]*/ ''
+//   };
+  // console.log('세션 객체:', session);
 
   import { ajax } from '/js/common.js';
   async function findAllComment() {
@@ -181,6 +193,7 @@
       const $li = createLiModifyMode(textOfReadMode, replyId, writer); // 수정 폼 생성
       targetLi.parentNode.replaceChild($li, targetLi);
 
+
     } else if (e.target.classList.contains('delBtn')) {
       // 삭제 버튼 클릭
       if (!confirm('삭제하시겠습니까?')) return;
@@ -191,6 +204,8 @@
       } catch (error) {
         console.error(error.message);
       }
+
+
     } else if (e.target.classList.contains('saveBtn')) {
       // 저장 버튼 클릭
       const modifiedContent = targetLi.querySelector('textarea').value;
@@ -200,6 +215,8 @@
       } catch (error) {
         console.error(error.message);
       }
+
+      
     } else if (e.target.classList.contains('cancelBtn')) {
       // 취소 버튼 클릭
       const initialContent = targetLi.querySelector('textarea').getAttribute('data-initial');
@@ -216,12 +233,22 @@
     $li.setAttribute('data-reply-id', comment.reply_id); // 댓글 ID 설정
     $li.setAttribute('data-writer', comment.writer); // 작성자 정보 저장
 
+
+    // const isLoggedIn = session.loginOkMember != null; // loginOkMember != null : 로그인중인 상태면 true
+    // const isWriter = isLoggedIn && session.loginOkMember.nickname === comment.writer; // isWriter : 로그인중이면서, 로그인중인 계정의 별칭과, 댓글작성자가 같으면 true
+
+    // console.log('로그인 상태:', isLoggedIn);
+    // console.log('작성자 확인:', isWriter);
+    // console.log('로그인 별칭:', session.loginOkMember.nickname);
+    // console.log('댓글 작성자:', comment.writer);
+
+    //수정,삭제버튼은 isWriter가 true일때만 보여야함
     $li.innerHTML = `
       <span class="writer"><strong>${comment.writer}</strong></span>
       <span class="comments">${comment.comments}</span>
       <span class="innerBtn">
-          <button class="btn modifyBtn">수정</button>
-          <button class="btn delBtn">삭제</button>
+        <button class="btn modifyBtn">수정</button>
+        <button class="btn delBtn">삭제</button>
       </span>`;
     return $li;
   }
