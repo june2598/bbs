@@ -23,8 +23,10 @@ import java.util.Optional;
 public class BbsDAOImpl implements BbsDAO {
 
   private final NamedParameterJdbcTemplate template;
+
   @Override
   public Long save(Bbs bbs) {
+
     StringBuffer sql = new StringBuffer();
     sql.append("insert into bbs(bbs_id,writer,title,contents,cdate,udate) ");
     sql.append("values(bbs_bbs_id_seq.nextval, :writer, :title, :contents, sysdate, sysdate)");

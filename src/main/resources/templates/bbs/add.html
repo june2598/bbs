@@ -22,7 +22,7 @@
         <div class="err" th:each="err : ${#fields.errors('title')}" th:text="${err}"></div>
         <div class="form-group">
           <label for="writer">작성자</label>
-          <input type="text" name="writer" id="writer" th:value="*{writer}">
+          <input type="text" name="writer" id="writer" th:value="${session.loginOkMember.nickname}" readonly>  <!--th:value="${session.loginOkMember.nickname}" : 현재 로그인된 세션의 닉네임을 가져와서 표시해줌, 수정이 불가능해야 하기때문에 readonly -->
         </div>
         <div class="err" id="errWriter"></div>
         <div class="err" th:each="err:${#fields.errors('writer')}" th:text="${err}"></div>

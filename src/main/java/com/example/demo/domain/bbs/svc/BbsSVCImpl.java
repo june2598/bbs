@@ -2,6 +2,8 @@ package com.example.demo.domain.bbs.svc;
 
 import com.example.demo.domain.bbs.dao.BbsDAO;
 import com.example.demo.domain.entity.Bbs;
+import com.example.demo.web.form.login.LoginMember;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,9 +18,14 @@ import java.util.Optional;
 public class BbsSVCImpl implements BbsSVC{
 
   private final BbsDAO bbsDAO;
+  private final HttpSession session;
 
   @Override
   public Long save(Bbs bbs) {
+
+    //게시글 작성자를 세션에 저장된 닉네임으로 부터 가져오는부분
+    LoginMember loginOkMember = (LoginMember) session.getAttribute("loginOkMember");
+    bbs.setWriter(loginOkMember.getNickname());
     return bbsDAO.save(bbs);
   }
 

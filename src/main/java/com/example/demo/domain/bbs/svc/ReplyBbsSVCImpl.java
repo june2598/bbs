@@ -18,12 +18,13 @@ public class ReplyBbsSVCImpl implements ReplyBbsSVC{
 
   @Override
   public Long save(ReplyBbs replyBbs) {
+
     return replyBbsDAO.save(replyBbs);
   }
 
   @Override
-  public List<ReplyBbs> listAll() {
-    return replyBbsDAO.listAll();
+  public List<ReplyBbs> listAll(Long bbsId) {
+    return replyBbsDAO.listAll(bbsId);
   }
 
   @Override

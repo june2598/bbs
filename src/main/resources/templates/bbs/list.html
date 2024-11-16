@@ -39,8 +39,9 @@
     </table>
   </form>
   <div class="buttonWrap">
+    <button id="btnHome">초기화면</button>
     <button id="btnDels">삭제</button>
-    <button class="btnAdd" id="btnAdd">게시글작성</button>
+    <button class="btnAdd" id="btnAdd" th:if="${!session.isEmpty()}">게시글작성</button>
   </div>
 </div>
 </body>

@@ -6,8 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>게시글 상세</title>
   <link rel="stylesheet" th:href="@{/css/common.css}">
-  <script th:src="@{/js/common.js}" defer></script>
-  <script th:src="@{/js/bbs/detailForm.js}" defer></script>
+  <script type="module" th:src="@{/js/common.js}" defer></script>
 </head>
 
 <body>
@@ -42,8 +41,14 @@
         </div>
       </div>
       <div class="button">
-        <button id="btnUpdate" type="button">수정</button>
-        <button id="btnDelete" type="button">삭제</button>
+        <!-- 비 로그인 상태일시 수정버튼이 보이지 않음-->
+        <button id="btnUpdate" type="button"
+                th:if="${session.loginOkMember != null && session.loginOkMember.nickname == detailForm.writer}">수정
+        </button>
+        <!-- 비 로그인 상태일시 삭제버튼이 보이지 않음-->
+        <button id="btnDelete" type="button"
+                th:if="${session.loginOkMember != null && session.loginOkMember.nickname == detailForm.writer}">삭제
+        </button>
         <button id="btnListAll" type="button">목록</button>
       </div>
     </div>
@@ -54,29 +59,188 @@
   <div class="reply-title">
     <span class="blankArea"></span>
     <h3 id="reply-header">댓글</h3>
-    </div>
-      <div id="replyWrap">
-      </div>
-      <div class="replyAdd-title">
-        <span class="blankArea"></span>
-        <h3 id="replyAdd-header">댓글 작성</h3>
-      </div>
-      <div class="comment">
-        <span class="blankArea"></span>
-        <textarea cols="30" rows="3" name="" id="comment" placeholder="댓글을 입력하세요..."></textarea>
-      </div>
-      <div class="errorWrap">
-      <span class="blankArea" id="errorBlankArea" style="display:none"></span><div id="error-message" class="errmsg" style="display: none;"></div>
-      </div>
-      <div class="btnAdd">
-        <button id="btnAdd">등록</button>
-      </div>
+  </div>
+  <div id="replyWrap">
+    <!-- 댓글 목록이 여기에 들어옵니다. -->
+  </div>
 
+  <div class="replyAdd-title">
+    <span class="blankArea"></span>
+    <h3 id="replyAdd-header">댓글 작성</h3>
+  </div>
+  <div class="replyId">
+    <div class="form-group">
+      <label for="writer">작성자</label>
+      <!-- 비로그인 상태일 시 작성자 필드 빈값으로 설정 -->
+      <input type="text" name="writer" readonly
+             th:value="${session.loginOkMember != null ? session.loginOkMember.nickname : ''}">
     </div>
-    <script type="module">
-      import { getBytesSize, ajax } from '/js/common.js';
+  </div>
+  <div class="comment">
+    <span class="blankArea"></span>
+    <!-- 비로그인 상태일시 댓글 입력란 비활성화 -->
+    <textarea cols="30" rows="3" name="" id="comment" placeholder="댓글을 입력하세요."
+              th:disabled="${session.loginOkMember == null}"></textarea>
+  </div>
+  <div class="errorWrap">
+    <span class="blankArea" id="errorBlankArea" style="display:none"></span>
+    <div id="error-message" class="errmsg" style="display: none;"></div>
+  </div>
+  <div class="btnAdd">
+    <!-- 비 로그인 상태일시 댓글 등록 버튼 비활성화 -->
+    <button id="btnAdd" th:disabled="${session.loginOkMember == null}">등록</button>
+  </div>
+</div>
 
-    </script>
+<!--비 로그인시에 로그인 안내 메시지 및 로그인 링크 생성 -->
+<div th:if="${session.loginOkMember == null}">
+  <p>로그인 후 댓글을 작성할 수 있습니다. <a href="/login">로그인하기</a></p>
+</div>
+
+<script type="module">
+
+  import { ajax } from '/js/common.js';
+  async function findAllComment() {
+    const bbsId = document.getElementById('bbsId').value; // 게시글 번호 가져오기
+    const url = `http://localhost:9070/api/replybbs/${bbsId}`; // 댓글 API URL
+    try {
+      const comments = await ajax.get(url); // 댓글 목록 가져오기
+      displayComments(comments); // 댓글 목록을 화면에 표시
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+
+  function displayComments(response) {
+    const replyWrap = document.getElementById('replyWrap'); // 댓글을 표시할 요소
+    replyWrap.innerHTML = ''; // 기존 댓글 초기화
+
+    const comments = response.body; // response.body에서 댓글 목록 가져오기
+
+    if (comments && comments.length > 0) {
+      comments.forEach(comment => {
+        const commentElement = createLiReadMode(comment); // 댓글 요소 생성
+        replyWrap.appendChild(commentElement); // 댓글 요소를 컨테이너에 추가
+      });
+    } else {
+      replyWrap.innerHTML = '<p>댓글이 없습니다.</p>'; // 댓글이 없을 경우 메시지 표시
+    }
+  }
+
+  // 댓글 추가 기능
+  document.getElementById('btnAdd').addEventListener('click', async () => {
+
+    const textarea = document.getElementById('comment'); // textarea
+    const errorMessageDiv = document.getElementById('error-message'); // 에러 메시지 div
+    const errorBlankArea = document.getElementById('errorBlankArea');
+
+    // 유효성 체크 (textarea가 비었는지)
+    if (textarea.value.trim() === '') { // 댓글란이 공백인 경우
+      errorMessageDiv.textContent = '댓글을 입력해주세요.'; // 에러 메시지 설정
+      errorBlankArea.style.display = 'block';
+      errorMessageDiv.style.display = 'block'; // 에러 메시지 표시
+      return;
+    } else {
+      errorMessageDiv.style.display = 'none'; // 에러 메시지 숨기기
+    }
+
+    const bbsId = document.getElementById('bbsId').value;
+    const writer = document.querySelector('input[name="writer"]').value; // 작성자
+    const content = document.getElementById('comment').value; // 댓글 내용
+
+    const url = `http://localhost:9070/api/replybbs`; // 댓글 등록 API URL
+    const data = { bbsId, writer, comments: content };
+
+    try {
+      await ajax.post(url, data); // AJAX POST 요청
+      document.getElementById('comment').value = ''; // 댓글 입력란 초기화
+      findAllComment(); // 댓글 목록 새로 고침
+    } catch (error) {
+      console.error(error.message);
+    }
+  });
+
+  // 페이지가 로드될 때 댓글 목록을 불러오기
+  window.onload = function () {
+    findAllComment();
+  };
+
+  // 댓글 수정 및 삭제 이벤트
+  const replyWrap = document.getElementById('replyWrap');
+  replyWrap.addEventListener('click', async (e) => {
+    if (e.target.tagName !== 'BUTTON') return;
+
+    const targetLi = e.target.closest('li');
+    const replyId = targetLi.getAttribute('data-reply-id'); // 댓글 ID 가져오기
+
+    if (e.target.classList.contains('modifyBtn')) {
+
+      // 수정 버튼 클릭
+      const writer = targetLi.querySelector('strong').textContent; // 댓글 작성자
+      const textOfReadMode = targetLi.querySelector('span:nth-child(2)').textContent; // 수정 전 댓글 내용 저장
+      const $li = createLiModifyMode(textOfReadMode, replyId, writer); // 수정 폼 생성
+      targetLi.parentNode.replaceChild($li, targetLi);
+
+    } else if (e.target.classList.contains('delBtn')) {
+      // 삭제 버튼 클릭
+      if (!confirm('삭제하시겠습니까?')) return;
+
+      try {
+        await ajax.delete(`http://localhost:9070/api/replybbs/${replyId}`); // ajax함수: delete 요청
+        findAllComment(); // 댓글 목록 새로 고침
+      } catch (error) {
+        console.error(error.message);
+      }
+    } else if (e.target.classList.contains('saveBtn')) {
+      // 저장 버튼 클릭
+      const modifiedContent = targetLi.querySelector('textarea').value;
+      try {
+        await ajax.patch(`http://localhost:9070/api/replybbs/${replyId}`, { comments: modifiedContent }); // ajax 함수 : patch 요청
+        findAllComment(); // 댓글 목록 새로 고침
+      } catch (error) {
+        console.error(error.message);
+      }
+    } else if (e.target.classList.contains('cancelBtn')) {
+      // 취소 버튼 클릭
+      const initialContent = targetLi.querySelector('textarea').getAttribute('data-initial');
+      const writer = targetLi.getAttribute('data-writer'); // 작성자 정보 복원
+
+      const $li = createLiReadMode({ comments: initialContent, writer, reply_id: replyId }); // 수정된 댓글 내용과 작성자 설정
+      targetLi.parentNode.replaceChild($li, targetLi);
+    }
+  });
+
+  // 댓글 읽기 모드 생성 함수
+  function createLiReadMode(comment) {
+    const $li = document.createElement('li');
+    $li.setAttribute('data-reply-id', comment.reply_id); // 댓글 ID 설정
+    $li.setAttribute('data-writer', comment.writer); // 작성자 정보 저장
+
+    $li.innerHTML = `
+      <span class="writer"><strong>${comment.writer}</strong></span>
+      <span class="comments">${comment.comments}</span>
+      <span class="innerBtn">
+          <button class="btn modifyBtn">수정</button>
+          <button class="btn delBtn">삭제</button>
+      </span>`;
+    return $li;
+  }
+
+  // 댓글 수정 모드 생성 함수
+  function createLiModifyMode(text, replyId, writer) {
+    const $li = document.createElement('li');
+    $li.setAttribute('data-reply-id', replyId); // 댓글 ID 설정
+    $li.setAttribute('data-writer', writer); // 작성자 정보 저장
+
+    $li.innerHTML = `<textarea cols="30" rows="3" class="modifyTextarea" data-initial="${text}">${text}</textarea>
+      <span class="innerBtn">
+          <button class="btn saveBtn">저장</button>
+          <button class="btn cancelBtn">취소</button>
+      </span>`;
+    return $li;
+  }
+
+</script>
 </body>
 
 </html>

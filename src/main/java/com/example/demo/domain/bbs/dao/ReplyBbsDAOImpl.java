@@ -30,7 +30,7 @@ public class ReplyBbsDAOImpl implements ReplyBbsDAO{
   public Long save(ReplyBbs replybbs) {
     StringBuffer sql = new StringBuffer();
     sql.append("insert into replybbs (reply_id,bbs_id,writer,comments,cdate) ");
-    sql.append("values(replybbs_reply_id_seq.nextval,43, :writer, :comments, sysdate )");
+    sql.append("values (replybbs_reply_id_seq.nextval, :bbsId, :writer, :comments, sysdate)");
 
     SqlParameterSource param = new BeanPropertySqlParameterSource(replybbs);
     KeyHolder keyholder = new GeneratedKeyHolder();
@@ -41,14 +41,18 @@ public class ReplyBbsDAOImpl implements ReplyBbsDAO{
   }
 
   @Override
-  public List<ReplyBbs> listAll() {
+  public List<ReplyBbs> listAll(Long bbsId) {
     //sql
     StringBuffer sql = new StringBuffer();
     sql.append("select reply_id, comments, writer, cdate, udate " );
     sql.append(" from replybbs " );
+    sql.append(" where bbs_id = :bbsId ");
     sql.append("order by reply_id asc ");
 
-    List<ReplyBbs> list = template.query(sql.toString(), BeanPropertyRowMapper.newInstance(ReplyBbs.class));
+    // 파라미터 설정
+    Map<String, Long> params = Map.of("bbsId", bbsId);
+
+    List<ReplyBbs> list = template.query(sql.toString(), params, BeanPropertyRowMapper.newInstance(ReplyBbs.class));
     return list;
   }
 

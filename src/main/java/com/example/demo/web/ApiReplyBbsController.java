@@ -5,9 +5,11 @@ import com.example.demo.domain.entity.ReplyBbs;
 import com.example.demo.web.api.ApiResponse;
 import com.example.demo.web.api.ApiResponseCode;
 import com.example.demo.web.exception.BusinessException;
+import com.example.demo.web.form.login.LoginMember;
 import com.example.demo.web.req.ReqSave;
 import com.example.demo.web.req.ReqUpdate;
 import com.example.demo.web.util.khUtil;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +30,11 @@ public class ApiReplyBbsController {
   private final ReplyBbsSVC replyBbsSVC;
 
   //댓글 목록
-  @GetMapping
-  public ApiResponse<List<ReplyBbs>> all() {
-    ApiResponse<List<ReplyBbs>> res = null;
-    List<ReplyBbs> replyBbsList = replyBbsSVC.listAll();
-    if (replyBbsList.size() != 0) {
+  @GetMapping("/{bbsId}")
+  public ApiResponse<List<ReplyBbs>> all(@PathVariable(name = "bbsId") Long bbsId) {
+    ApiResponse<List<ReplyBbs>> res;
+    List<ReplyBbs> replyBbsList = replyBbsSVC.listAll(bbsId);
+    if (!replyBbsList.isEmpty()) {
       res = ApiResponse.of(ApiResponseCode.SUCCESS, replyBbsList);
     } else {
       throw new BusinessException(ApiResponseCode.ENTITY_NOT_FOUND, null);
@@ -42,36 +44,42 @@ public class ApiReplyBbsController {
 
   //댓글 등록
   @PostMapping
-
   public ApiResponse<ReplyBbs> add(
       @Valid @RequestBody ReqSave reqSave,
-      BindingResult bindingResult) {
+      BindingResult bindingResult,
+      HttpSession session) {
 
-    log.info("reqSave={}", reqSave);
+//    log.info("reqSave={}", reqSave);
     ApiResponse<ReplyBbs> res;
 
+    // 로그인된 닉네임 가져오기
+    LoginMember loginOkMember = (LoginMember) session.getAttribute("loginOkMember");
+    String loggedInNickname = loginOkMember.getNickname();
+    log.info("Logged in nickname: {}", loggedInNickname);
+
+    // 작성자 필드 설정
+    reqSave.setWriter(loggedInNickname);
+
     // 요청 데이터 유효성 체크
-    // 어노테이션 기반의 필드 검증
     if (bindingResult.hasErrors()) {
       log.info("bindingResult={}", bindingResult);
       throw new BusinessException(ApiResponseCode.VALIDATION_ERROR, khUtil.getValidChkMap(bindingResult));
     }
 
-    // 코드 기반 검증
-    // 댓글 길이 100자 초과 불가
-    if (reqSave.getComments().length() > 100) {
+    // 댓글 길이 및 특수 문자 체크
+    if (reqSave.getComments() == null || reqSave.getComments().length() > 100) {
       bindingResult.rejectValue("comments", null, "댓글내용 100자 초과 불가");
     }
 
-    // 댓글 작성자 길이 10자 초과 불가
-    if (reqSave.getWriter().length() > 10) {
-      bindingResult.rejectValue("writer", null, "작성자명 10자 초과불가");
-    }
+    // writer가 null인지 체크한 후 길이 체크
+//    String writer = reqSave.getWriter();
+//    if (writer == null || writer.length() > 10) {
+//      bindingResult.rejectValue("writer", null, "작성자명 10자 초과불가");
+//    }
 
-    // 댓글 작성자명에 특수문자 사용 불가
-    if (reqSave.getWriter().matches(".*[<>?;:!@#$%^&*()_+=-].*")) {
-      bindingResult.rejectValue("writer", null, "작성자명에 허용되지 않는 문자가 포함되어 있습니다.");
-    }
+//    if (writer != null && writer.matches(".*[<>?;:!@#$%^&*()_+=-].*")) {
+//      bindingResult.rejectValue("writer", null, "작성자명에 허용되지 않는 문자가 포함되어 있습니다.");
+//    }
 
     if (bindingResult.hasErrors()) {
       log.info("bindingResult={}", bindingResult);
@@ -83,7 +91,7 @@ public class ApiReplyBbsController {
     BeanUtils.copyProperties(reqSave, replyBbs);
 
     // 게시글 ID 설정
-    replyBbs.setBbsId(reqSave.getBbsId()); // 게시글 ID 설정
+    replyBbs.setBbsId(reqSave.getBbsId());
 
     Long rid = replyBbsSVC.save(replyBbs);
 
@@ -207,7 +215,7 @@ public class ApiReplyBbsController {
   }
 
   //댓글조회
-  @GetMapping("/{rid}")
+  @GetMapping("/reply/{rid}")
   public ApiResponse<ReplyBbs> findbyId(@PathVariable("rid") Long rid) {
     ApiResponse<ReplyBbs> res = null;
     Optional<ReplyBbs> optionalReply = replyBbsSVC.findById(rid);

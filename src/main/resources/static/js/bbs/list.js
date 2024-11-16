@@ -8,6 +8,13 @@ selectAllEle.addEventListener('click', e => {
         ele.checked = Checked;
     });
 });
+//초기화면 버튼 이벤트
+
+const btnHome = document.getElementById('btnHome');
+btnHome.addEventListener('click', e => {
+    console.log('초기화면 버튼 클릭됨');
+    location.href = 'http://localhost:9070/';
+}, false);
 
 //게시글작성버튼 이벤트
 const btnAdd = document.getElementById('btnAdd');
