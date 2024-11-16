@@ -15,6 +15,10 @@ ul {
   padding: 0;
 }
 
+li {
+  list-style-type: none; /*마커 제거 */
+}
+
 /*container 스타일*/
 .container,
 .reply-container {
@@ -164,40 +168,45 @@ textarea {
 
 /*댓글 Wrap 계열 */
 #replyWrap {
-  display: flex;
-  flex-direction: column;
-
+  margin: 10px 0; /* 댓글 목록 간격 */
+  padding: 10px; /* 패딩 추가 */
+  border: 1px solid #ddd; /* 경계선 추가 */
+  border-radius: 4px; /* 모서리 둥글게 */
+  background-color: #f9f9f9; /* 배경색 추가 */
 }
 
-.replyInnerWrap {
-  display: flex;
-  margin: 5px 0;
-  padding: 5px;
-  /* 댓글 패딩 추가 */
-}
-
-.replyInnerWrap li {
-  display: flex;
-  border: 1px solid #ccc; /* 부드러운 테두리 색상 */
-  border-radius: 4px; /* 모서리를 둥글게 */
-  padding: 10px;
+#replyWrap li {
+  display: flex; 
+  border: 1px solid #ccc;
+  border-radius: 4px; 
+  padding: 10px; 
   margin: 5px 0; 
-  flex: 8;
-
+  background-color: #fff; 
 }
-.replyInnerWrap>li>span,
-.replyInnerWrap>li>textarea {
+
+#replyWrap .writer{
+  flex: 1;
+  font-weight: bold;
+  align-content: center;
+}
+
+#replyWrap .comments{
+  flex: 9; /* 댓글 내용 영역 */
+  padding: 10px; /* 댓글 내용 패딩 */
+}
+
+#replyWrap>li>textarea {
   flex: 8.5;
 }
 
-.replyInnerWrap>li>textarea {
+#replyWrap>li>textarea {
   height: 100px;
 }
 
-.replyInnerWrap span.innerBtn {
+#replyWrap span.innerBtn {
   text-align: right;
   flex: 1.5;
-  align-content: end;
+  align-content: center;
 }
 
 #reply-header,

@@ -11,7 +11,7 @@ public interface ReplyBbsDAO {
   Long save(ReplyBbs replyBbs);
 
   //댓글목록
-  List<ReplyBbs> listAll();
+  List<ReplyBbs> listAll(Long bbsId);
 
   //댓글조회
   Optional<ReplyBbs> findById(Long replyId);

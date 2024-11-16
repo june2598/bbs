@@ -11,7 +11,10 @@ public interface ReplyBbsSVC {
   Long save(ReplyBbs replyBbs);
 
   //댓글목록
-  List<ReplyBbs> listAll();
+  List<ReplyBbs> listAll(Long bbsId);
+
+  //댓글조회
+  Optional<ReplyBbs> findById(Long replyId);
 
   //댓글삭제
   int deleteById(Long replyId);
@@ -19,6 +22,4 @@ public interface ReplyBbsSVC {
   //댓글수정
   int updateById(Long replyId, ReplyBbs replyBbs);
 
-  //댓글조회
-  Optional<ReplyBbs> findById(Long replyId);
 }
