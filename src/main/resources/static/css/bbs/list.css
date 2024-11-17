@@ -1,14 +1,62 @@
 @charset "UTF-8";
 
     body {
+      display: flex;
       font-family: Arial, sans-serif;
       background-color: #ddd;
       margin: 0;
-      padding: 20px;
+      padding:20px;
+    }
+/* 
+    .userInfo,
+   
+    {
+      display: flex;
+      flex-direction: column;
+      background-color: #fff;
+      margin: 10px;
+      padding: 10px;
+      width: 15vw;
+      height: 20vh;
+      flex: 0 1 auto;
+    } */
+
+    .userInfo,
+    .nonLogin {
+      display: flex;
+      flex-direction: column;
+      background-color: #f9f9f9;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      width: 15vw;
+      height: 20vh;
+      flex: 0 1 auto;
+    }
+    
+    .userInfo h3 {
+      margin-bottom: 10px;
+      font-size: 1.5em;
+      color: #333;
+    }
+    
+    .user-details {
+      font-size: 1.1em;
+      color: #555;
+    }
+    
+    .user-details p {
+      margin: 5px 0;
+    }
+    
+    .user-details strong {
+      color: #333;
     }
 
+    /* 컨테이너 영역 */
     .container {
-      max-width: 1000px;
+      width: 1200px;
       margin: 0 auto;
       background-color: #fff;
       padding: 20px;

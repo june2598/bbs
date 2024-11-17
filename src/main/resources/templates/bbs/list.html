@@ -10,6 +10,16 @@
 </head>
 
 <body>
+<div class="userInfo" th:if="${session.loginOkMember != null}">
+  <h3>회원정보</h3>
+  <p><strong>이메일: </strong><span th:text="${session.loginOkMember.email}"></span></p>
+  <p><strong>별칭: </strong><span id="userNickname" th:text="${session.loginOkMember.nickname}"></span></p>
+  <p><a href="/logout">로그아웃</a></p>
+</div>
+<div class="nonLogin" th:if="${session.loginOkMember == null}">
+  <h3>비로그인 상태입니다.</h3>
+  <span><a href="/members/join">회원가입</a></span><span><a href="/login">로그인</a></span>
+</div>
 <div class="container">
   <h3>게시글목록</h3>
   <form action="/bbs/del" method="post" id="frm">
@@ -28,7 +38,7 @@
       <tr th:each="bbs : ${all}">
         <td><input type="checkbox" name="bbsIds" id="" th:value="${bbs.bbsId}"></td>
         <td th:text="${bbs.bbsId}">1</td>
-        <td th:text="${bbs.writer}">작성자</td>
+        <td class="writer" th:text="${bbs.writer}">작성자</td>
         <td class="title">
           <a th:href="@{/bbs/{id}/(id=${bbs.bbsId})}" th:text="${bbs.title}">제목</a>
         </td>
@@ -40,9 +50,10 @@
   </form>
   <div class="buttonWrap">
     <button id="btnHome">초기화면</button>
-    <button id="btnDels">삭제</button>
+    <button id="btnDels" th:if="${!session.isEmpty()}">삭제</button>
     <button class="btnAdd" id="btnAdd" th:if="${!session.isEmpty()}">게시글작성</button>
   </div>
 </div>
 </body>
+
 </html>

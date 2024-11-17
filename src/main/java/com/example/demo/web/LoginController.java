@@ -63,6 +63,7 @@ public class LoginController {
         loginMember.getNickname());
 
     session.setAttribute("loginOkMember",loginOkMember);
+
     log.info("세션에 저장된 회원 정보: {}", session.getAttribute("loginOkMember"));
 
     return "redirect:/";

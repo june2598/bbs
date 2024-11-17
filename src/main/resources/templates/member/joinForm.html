@@ -81,9 +81,18 @@
     </div>
     <div class="button">
       <button type="submit">가입</button>
-      <button>취소</button>
+      <button id="btnCancel">취소</button>
     </div>
   </form>
+  <script>
+
+const btnCancelEle = document.getElementById('btnCancel');
+btnCancelEle.addEventListener('click', e => {
+    e.preventDefault();
+    console.log('취소버튼 클릭됨');
+    location.href = '/';
+}, false);
+  </script>
 </div>
 </body>
 
