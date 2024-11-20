@@ -18,6 +18,7 @@
     <h3>회원정보</h3>
     <p>이메일: <span th:text="${session.loginOkMember.email}"></span></p>
     <p>별칭: <span th:text="${session.loginOkMember.nickname}"></span></p>
+    <p><span th:if="${session.loginOkMember.gubun == 'admin'}">관리자 접속입니다.</span></p>
     <p><a href="/logout">로그아웃</a></p>
   </div>
   <div>

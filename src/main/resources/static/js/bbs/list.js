@@ -37,15 +37,25 @@ btnDelsEle.addEventListener('click', e => {
     const userNicknameEle = document.getElementById('userNickname');         // 현재 로그인된 사용자의 별칭을 가져옴
     const userNickname = userNicknameEle ? userNicknameEle.textContent : ''; // 정말 혹시나 userNickname이 비어있을경우를 대비
 
+    // 관리자 계정인지 확인
+    const isAdmin = document.getElementById('adminInfo') !== null;
+
     // 체크된 게시글의 작성자 (별칭)를 확인
     const invalidPosts = Array.from(checkedBoxes).filter(e => {         //  NodeList 타입의 checkedBoxes를 실제 배열로 변환. filter : 주어진 조건을 만족하는 요소들로만 이루어진 새로운 배열 생성
         const checkedRow = e.closest('tr'); // 체크박스가 포함된 행 찾기
         const writerNickname = checkedRow.querySelector('.writer').textContent; // 작성자 별칭 가져오기
+
+
+        // 관리자 계정인 경우 별칭 비교를 스킵. (다른 사람의 글도 다 삭제 가능하게)
+        if (isAdmin) {
+            return false; // invalidPosts에 포함되지 않음
+        }
+        
         return writerNickname !== userNickname; // 서로 다를 경우 true를 반환하여 해당 체크박스를 invalidPosts 배열에 포함시키고, 같으면 false를 반환하여 제외시킴
     });
 
-    // 다른 사용자의 게시글이 체크된 경우 경고 
-    if (invalidPosts.length > 0) {
+    // 관리자가 아니면서, 다른 사용자의 게시글이 체크된 경우 경고 
+    if (!isAdmin && invalidPosts.length > 0) {
         alert('본인이 작성한 게시글만 삭제할 수 있습니다.');
         return;
     }

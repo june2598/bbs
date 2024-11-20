@@ -56,7 +56,8 @@ public class MemberDAOImpl implements MemberDAO {
     sql.append("select member_id, ");
     sql.append("       email, ");
     sql.append("       passwd, ");
-    sql.append("       nickname ");
+    sql.append("       nickname, ");
+    sql.append("       gubun    ");
     sql.append("  from member ");
     sql.append("  where member_id = :memberId ");
 
@@ -80,7 +81,8 @@ public class MemberDAOImpl implements MemberDAO {
     sql.append("select member_id, ");
     sql.append("       email, ");
     sql.append("       passwd, ");
-    sql.append("       nickname ");
+    sql.append("       nickname, ");
+    sql.append("       gubun    ");
     sql.append("  from member ");
     sql.append("  where email = :email ");
 

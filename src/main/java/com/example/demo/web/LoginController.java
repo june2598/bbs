@@ -60,7 +60,9 @@ public class LoginController {
     LoginMember loginOkMember = new LoginMember(
         loginMember.getMemberId(),
         loginMember.getEmail(),
-        loginMember.getNickname());
+        loginMember.getNickname(),
+        loginMember.getGubun()
+        );
 
     session.setAttribute("loginOkMember",loginOkMember);
 

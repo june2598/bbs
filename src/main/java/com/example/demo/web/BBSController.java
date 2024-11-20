@@ -116,7 +116,7 @@ log.info(nickname);
 
 
   //게시글 단건조회
-  @GetMapping("/{id}/")    //get 방식
+  @GetMapping("/{id}")    //get 방식
 //PathVariable("id") Long bbsId: url패턴에서 "id"라는 이름의 변수를 찾아, 그 값을 메소드의 bbsId 변수에 할당
 //Model 객체를 사용해 컨트롤러에서 처리한 데이터를 뷰로 전달 할 수 있다.
   public String findById(

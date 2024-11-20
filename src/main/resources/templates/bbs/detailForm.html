@@ -12,7 +12,8 @@
 
 <body>
   <div class="userInfo" th:if="${session.loginOkMember != null}">
-    <h3>회원정보</h3>
+    <h3 th:if="${session.loginOkMember.gubun == 'general'}" id="generalInfo">회원정보</h3>
+    <h3 th:if="${session.loginOkMember.gubun == 'admin'}" id="adminInfo">관리자 정보</h3>
     <p><strong>이메일: </strong><span th:text="${session.loginOkMember.email}"></span></p>
     <p><strong>별칭: </strong><span id="userNickname" th:text="${session.loginOkMember.nickname}"></span></p>
     <p><a href="/logout">로그아웃</a></p>
@@ -51,11 +52,15 @@
           <div class="button">
             <!-- 비 로그인 상태일시 수정버튼이 보이지 않음-->
             <button id="btnUpdate" type="button"
-              th:if="${session.loginOkMember != null && session.loginOkMember.nickname == detailForm.writer}">수정
+              th:if="${session.loginOkMember.gubun == 'admin' ||
+              (session.loginOkMember != null &&
+              session.loginOkMember.nickname == detailForm.writer)}">수정
             </button>
             <!-- 비 로그인 상태일시 삭제버튼이 보이지 않음-->
             <button id="btnDelete" type="button"
-              th:if="${session.loginOkMember != null && session.loginOkMember.nickname == detailForm.writer}">삭제
+              th:if="${session.loginOkMember.gubun == 'admin' ||
+              (session.loginOkMember != null &&
+              session.loginOkMember.nickname == detailForm.writer)}">삭제
             </button>
             <button id="btnListAll" type="button">목록</button>
           </div>
@@ -92,29 +97,6 @@
       <p>로그인 후 댓글을 작성할 수 있습니다. <a href="/login">로그인하기</a></p>
     </div>
   </div>
-<script>
-  //게시글 수정
-const btnUpdateEle = document.getElementById('btnUpdate');
-const btnDeleteEle = document.getElementById('btnDelete');
-const bbsIdEle = document.getElementById('bbsId');
-const bbsId = bbsIdEle.value;
-
-btnUpdateEle.addEventListener('click', e => {
-    console.log('수정버튼 클릭됨');
-    location.href = `/bbs/${bbsId}/edit`; // 올바른 URL로 수정
-}, false);
-
-//게시글 삭제
-
-btnDeleteEle.addEventListener('click', e => {
-    console.log('삭제버튼 클릭됨');
-    if (!confirm('삭제하시겠습니까?')) return;
-    location.href = `/bbs/${bbsId}/del`; // 절대 경로로 수정
-}, false);
-
-
-</script>
-
 </body>
 
 </html>

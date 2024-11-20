@@ -11,7 +11,8 @@
 
 <body>
 <div class="userInfo" th:if="${session.loginOkMember != null}">
-  <h3>회원정보</h3>
+  <h3 th:if="${session.loginOkMember.gubun == 'general'}" id="generalInfo">회원정보</h3>
+  <h3 th:if="${session.loginOkMember.gubun == 'admin'}" id="adminInfo">관리자 정보</h3>
   <p><strong>이메일: </strong><span th:text="${session.loginOkMember.email}"></span></p>
   <p><strong>별칭: </strong><span id="userNickname" th:text="${session.loginOkMember.nickname}"></span></p>
   <p><a href="/logout">로그아웃</a></p>
@@ -40,7 +41,7 @@
         <td th:text="${bbs.bbsId}">1</td>
         <td class="writer" th:text="${bbs.writer}">작성자</td>
         <td class="title">
-          <a th:href="@{/bbs/{id}/(id=${bbs.bbsId})}" th:text="${bbs.title}">제목</a>
+          <a th:href="@{/bbs/{id}(id=${bbs.bbsId})}" th:text="${bbs.title}">제목</a>
         </td>
         <td th:text="${bbs.cdate}">작성 날짜</td>
         <td th:text="${bbs.udate}">수정 날짜</td>
