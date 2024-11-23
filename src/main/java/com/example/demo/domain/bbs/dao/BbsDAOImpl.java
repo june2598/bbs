@@ -40,15 +40,25 @@ public class BbsDAOImpl implements BbsDAO {
   }
 
   @Override
-  public List<Bbs> listAll() {
-    //sql
+  public List<Bbs> listAll(int page) {
+    int pageSize = 5;
+    int startRow = (page - 1) * pageSize + 1; // 시작 행 번호
+    int endRow = page * pageSize; // 끝 행 번호
+
+    // SQL 쿼리
     StringBuffer sql = new StringBuffer();
-    sql.append("select bbs_id,writer,title,contents,cdate,udate " );
-    sql.append(" from bbs " );
-    sql.append("order by bbs_id desc ");
+    sql.append("SELECT * FROM ( ");
+    sql.append("    SELECT bbs_id, writer, title, contents, cdate, udate, ");
+    sql.append("           ROW_NUMBER() OVER (ORDER BY bbs_id DESC) AS rn ");
+    sql.append("    FROM bbs ");
+    sql.append(") WHERE rn BETWEEN :startRow AND :endRow");
+
+    MapSqlParameterSource param = new MapSqlParameterSource();
+    param.addValue("startRow", startRow);
+    param.addValue("endRow", endRow);
 
     //db요청
-    List<Bbs> list = template.query(sql.toString(), BeanPropertyRowMapper.newInstance(Bbs.class));
+    List<Bbs> list = template.query(sql.toString(), param, new BeanPropertyRowMapper<>(Bbs.class)); // Bbs 객체로 매핑
     return list;
   }
 
@@ -115,5 +125,15 @@ public class BbsDAOImpl implements BbsDAO {
     int rows = template.update(sql.toString(),param);
 
     return rows;
+  }
+
+  @Override
+  public int getTotalRecords() {
+    StringBuffer sql = new StringBuffer();
+    sql.append("select count(*) " );
+    sql.append(" from bbs " );
+
+    SqlParameterSource param = new MapSqlParameterSource();
+    return template.queryForObject(sql.toString(), param,Integer.class);
   }
 }

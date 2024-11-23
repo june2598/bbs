@@ -11,7 +11,7 @@ public interface BbsDAO {
   Long save(Bbs bbs);
 
   //목록
-  List<Bbs> listAll();
+  List<Bbs> listAll(int page);
 
   //조회
   Optional<Bbs> findById(Long bbsId);
@@ -24,4 +24,8 @@ public interface BbsDAO {
 
   //여러건 삭제
   int deleteByIds(List<Long> bbsIds);
+
+  //게시글 총 숫자 조회
+  int getTotalRecords();
+
 }

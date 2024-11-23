@@ -31,14 +31,20 @@ public class BBSController {
   private final BbsSVC bbsSVC;
 
   //목록양식
-  @GetMapping // get방식 /bbs
+  @GetMapping// get방식 /bbs
   //모든 게시글 목록을 조회후 반환하는 메소드. Model 객체를 통해 데이터를 뷰로 전달
-  public String listAll(Model model) {
+  public String listAll(@RequestParam(value = "page", required = false, defaultValue = "1") int page, Model model) {
+    int pageSize = 5; //페이지당 게시글 수
+    int totalRecords = bbsSVC.getTotalRecords();
+    log.info("page={}",page);
+    log.info("totalRecords={}",totalRecords);
 
-
+    // startRow와 endRow 계산
+    int startRow = (page - 1) * pageSize;
+    int endRow = pageSize;
 
     //모든 게시글 조회
-    List<Bbs> list = bbsSVC.listAll();
+    List<Bbs> list = bbsSVC.listAll(page);
     //게시글 정보를 담을 리스트생성
     List<AllForm> all = new ArrayList<>();
     //향상된 for문 - 게시글 리스트를 순회
@@ -57,6 +63,10 @@ public class BBSController {
 
     //모델에 리스트를 추가해 뷰에서 사용할수 있도록 설정
     model.addAttribute("all", all);
+    model.addAttribute("totalRecords",totalRecords);
+    model.addAttribute("currentPage", page); // 현재 페이지 정보 추가
+    model.addAttribute("pageSize", pageSize); // 페이지 사이즈 정보 추가
+    model.addAttribute("totalPages", (int) Math.ceil((double) totalRecords / pageSize)); // 총 페이지 수 계산
 
     return "bbs/list";    // list 뷰를 반환
   }
@@ -111,7 +121,7 @@ log.info(nickname);
     //리다이렉트시 사용할 url경로 변수에 값을 동적으로 할당
     redirectAttributes.addAttribute("id", bid);
 
-    return "redirect:/bbs/{id}/";   //게시글 상세 페이지로 리다이렉트
+    return "redirect:/bbs/{id}";   //게시글 상세 페이지로 리다이렉트
   }
 
 
@@ -214,7 +224,7 @@ log.info(nickname);
 
     redirectAttributes.addAttribute("id", bbsId);
 
-    return "redirect:/bbs/{id}/";   //게시글 상세 페이지로 리다이렉트
+    return "redirect:/bbs/{id}";   //게시글 상세 페이지로 리다이렉트
   }
 
 

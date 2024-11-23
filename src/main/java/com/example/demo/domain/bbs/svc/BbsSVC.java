@@ -11,7 +11,7 @@ public interface BbsSVC {
   Long save(Bbs bbs);
 //
   //목록
-  List<Bbs> listAll();
+  List<Bbs> listAll(int page);
 
 //  //조회
   Optional<Bbs> listById(Long bbsId);
@@ -24,4 +24,6 @@ public interface BbsSVC {
 
   //여러건 삭제
   int deleteByIds(List<Long> bbsIds);
+
+  int getTotalRecords();
 }

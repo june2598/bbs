@@ -30,8 +30,8 @@ public class BbsSVCImpl implements BbsSVC{
   }
 
   @Override
-  public List<Bbs> listAll() {
-    return bbsDAO.listAll();
+  public List<Bbs> listAll(int page) {
+    return bbsDAO.listAll(page);
   }
 
   @Override
@@ -52,5 +52,10 @@ public class BbsSVCImpl implements BbsSVC{
   @Override
   public int deleteByIds(List<Long> bbsIds) {
     return bbsDAO.deleteByIds(bbsIds);
+  }
+
+  @Override
+  public int getTotalRecords() {
+    return bbsDAO.getTotalRecords();
   }
 }

@@ -35,7 +35,7 @@ public class BbsDAOImplTest {
   @Test
   @DisplayName("게시글목록")
   void listAll() {
-    List<Bbs> list = bbsDAO.listAll();
+    List<Bbs> list = bbsDAO.listAll(1);
     for (Bbs bbs : list) {
       log.info("bbs={}", bbs);
     }

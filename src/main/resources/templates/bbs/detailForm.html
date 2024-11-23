@@ -52,15 +52,11 @@
           <div class="button">
             <!-- 비 로그인 상태일시 수정버튼이 보이지 않음-->
             <button id="btnUpdate" type="button"
-              th:if="${session.loginOkMember.gubun == 'admin' ||
-              (session.loginOkMember != null &&
-              session.loginOkMember.nickname == detailForm.writer)}">수정
+              th:if="${session.loginOkMember != null && (session.loginOkMember.gubun.equals('admin') || session.loginOkMember.nickname.equals(detailForm.writer))}">수정
             </button>
             <!-- 비 로그인 상태일시 삭제버튼이 보이지 않음-->
             <button id="btnDelete" type="button"
-              th:if="${session.loginOkMember.gubun == 'admin' ||
-              (session.loginOkMember != null &&
-              session.loginOkMember.nickname == detailForm.writer)}">삭제
+              th:if="${session.loginOkMember != null && (session.loginOkMember.gubun.equals('admin') || session.loginOkMember.nickname.equals(detailForm.writer))}">삭제
             </button>
             <button id="btnListAll" type="button">목록</button>
           </div>
