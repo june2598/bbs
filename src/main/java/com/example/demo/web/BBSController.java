@@ -36,14 +36,14 @@ public class BBSController {
   public String listAll(@RequestParam(value = "page", required = false, defaultValue = "1") int page, Model model) {
 
     log.info("Requested page: {}", page); // 요청된 페이지 로그 추가
-    int pageSize = 5; //페이지당 게시글 수
+//    int pageSize = 5; //페이지당 게시글 수
     int totalRecords = bbsSVC.getTotalRecords();
     log.info("page={}",page);
     log.info("totalRecords={}",totalRecords);
 
     // startRow와 endRow 계산
-    int startRow = (page - 1) * pageSize;
-    int endRow = pageSize;
+//    int startRow = (page - 1) * pageSize;
+//    int endRow = pageSize;
 
     //모든 게시글 조회
     List<Bbs> list = bbsSVC.listAll(page);
@@ -66,9 +66,9 @@ public class BBSController {
     //모델에 리스트를 추가해 뷰에서 사용할수 있도록 설정
     model.addAttribute("all", all);
     model.addAttribute("totalRecords",totalRecords);
-    model.addAttribute("currentPage", page); // 현재 페이지 정보 추가
-    model.addAttribute("pageSize", pageSize); // 페이지 사이즈 정보 추가
-    model.addAttribute("totalPages", (int) Math.ceil((double) totalRecords / pageSize)); // 총 페이지 수 계산
+//    model.addAttribute("currentPage", page); // 현재 페이지 정보 추가
+//    model.addAttribute("pageSize", pageSize); // 페이지 사이즈 정보 추가
+//    model.addAttribute("totalPages", (int) Math.ceil((double) totalRecords / pageSize)); // 총 페이지 수 계산
 
     return "bbs/list";    // list 뷰를 반환
   }

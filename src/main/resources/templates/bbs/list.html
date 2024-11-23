@@ -89,22 +89,9 @@
         this.currentPageGroupStart = 1;             //현재 페이지의 시작페이지
       }
 
-      getTotalRecords() {
-        return this.totalRecords;
-      }
-
       getTotalPages() {
         return Math.ceil(this.totalRecords / this.recordsPerPage);     //페이지랑 레코드수를 전체 레코드수로 나눈뒤 올림을 하면 필요한 총 페이지 수가 나옴
       }
-
-      getStartRow() {
-        return (this.currentPage - 1) * this.recordsPerPage + 1; // 1-based index
-      }
-
-      getEndRow() {
-        return Math.min(this.currentPage * this.recordsPerPage, this.totalRecords); // 1-based index
-      }
-
 
       goToPage(pageNumber) {
         const totalPages = this.getTotalPages();
@@ -115,38 +102,30 @@
         console.log("goToPage의 currentPage:", this.currentPage);
         this.currentPageGroupStart = Math.floor((pageNumber - 1) / this.pagesPerPage) * this.pagesPerPage + 1; // 페이지 그룹 업데이트
 
-
-
         // URL 갱신
-
-
-        const newURL = `${window.location.pathname}?page=${pageNumber}`;
-
         //window.history.pushState의 원리와 사용법
-
         //window.history.pushState는 브라우저의 **히스토리(뒤로 가기/앞으로 가기)**를 관리하는 메서드입니다. 
         //이를 사용하면 페이지를 새로고침하지 않고도 URL을 변경할 수 있습니다.
+        const newURL = `${window.location.pathname}?page=${pageNumber}`;
         window.history.pushState({ page: pageNumber }, '', newURL);
       }
 
       displayNavigation() {
+        console.log("displayNavigation 호출됨");
         const totalPages = this.getTotalPages();
         let pageNavigation = '';
-
         // 시작이 1페이지가 아니라면 처음과 이전버튼을 생성
         if (this.currentPageGroupStart > 1) {
           pageNavigation += '<a href="#" class="nav-link" data-page="1">처음</a> <a href="#" class="nav-link" data-page="' + (this.currentPageGroupStart - 1) + '">이전</a> ';
         }
-
         for (let i = this.currentPageGroupStart; i <= totalPages; i++) {
-          console.log("displayNavigation의 currentPage:", this.currentPage);
+
           if (i === this.currentPage) {
             pageNavigation += `<span class="active" id="page${i}">${i}</span> `; // 현재 페이지는 버튼이 아닌 span으로 표시
           } else {
             pageNavigation += `<a href="" class="nav-link" data-page="${i}" id="page${i}">${i}</a> `; // 페이지 링크
           }
         }
-
         // 다음과 마지막 버튼 추가
         if (this.currentPageGroupStart + this.pagesPerPage - 1 < totalPages) {
           pageNavigation += '<a href="" class="nav-link" data-page="' + (this.currentPageGroupStart + this.pagesPerPage) + '">다음</a> <a href="#" class="nav-link" data-page="' + totalPages + '">끝</a>';
@@ -155,16 +134,10 @@
         return pageNavigation;
       }
 
-      setCurrentPage(pageNumber) {
-        this.currentPage = pageNumber;
-      }
-
-
       //다음 그룹 페이지로 이동 : 현재 페이지 그룹의 시작페이지를 페이지 수만큼 증가 ex) (1 2 3 4 5  -> 6 7 8 9 10)
       setNextPageGroup() {
         this.currentPageGroupStart += this.pagesPerPage;
       }
-
 
       //이전 그룹 페이지로 이동 : 현재 페이지 그룹의 시작페이지를 페이지 수만큼 감소 ex) (6 7 8 9 10) -> (1 2 3 4 5)
       setPrevPageGroup() {
@@ -176,7 +149,7 @@
       }
     }
 
-    const pagination = new Pagination(5, 5);
+    const pagination = new Pagination(5, 5);    // 한페이지의 게시글 갯수 , 한 페이지그룹의 페이지 갯수
     const totalRecords = parseInt(document.getElementById('pagination').dataset.totalRecords, 10);//여기에 bbs 테이블의 레코드 수를 가져와야함. SELECT COUNT(*) FROM BBS;
     pagination.totalRecords = totalRecords;
 
@@ -186,57 +159,51 @@
       // console.log("Total Records:", totalRecords);
       document.getElementById('pagination').innerHTML = pagination.displayNavigation();
 
-      const startRow = pagination.getStartRow();
-      const endRow = pagination.getEndRow();
-      console.log(`Displaying records from ${startRow} to ${endRow}`);
-
       // 페이지 링크에 대한 이벤트 리스너 추가
       const navLinks = document.querySelectorAll('.nav-link');
       navLinks.forEach(link => {
-        link.addEventListener('click', function (event) {
-          // event.preventDefault(); // 기본 링크 동작 방지
+        link.addEventListener('click', function (e) {
           const pageNumber = parseInt(this.getAttribute('data-page'));
           pagination.goToPage(pageNumber); // 페이지 이동
+          //이부분의 필요성에 대한
           displayPagination(); // UI 업데이트
-          // location.href = `bbs?page=${pageNumber}`;
         });
       });
 
-      // if (document.getElementById('first')) {
-      //   document.getElementById('first').addEventListener('click', function () {
-      //     pagination.goToPage(1);
-      //     displayPagination();
-      //   });
-      // }
-      // if (document.getElementById('prev')) {
-      //   document.getElementById('prev').addEventListener('click', function () {
-      //     if (pagination.currentPageGroupStart > 1) {
-      //       pagination.setPrevPageGroup();
-      //       pagination.goToPage(pagination.currentPageGroupStart);
-      //       displayPagination();
-      //     }
-      //   });
-      // }
+      if (document.getElementById('first')) {
+        document.getElementById('first').addEventListener('click', function () {
+          pagination.goToPage(1);
+          displayPagination();
+        });
+      }
+      if (document.getElementById('prev')) {
+        document.getElementById('prev').addEventListener('click', function () {
+          if (pagination.currentPageGroupStart > 1) {
+            pagination.setPrevPageGroup();
+            pagination.goToPage(pagination.currentPageGroupStart);
+            displayPagination();
+          }
+        });
+      }
 
-      // if (document.getElementById('next')) {
-      //   document.getElementById('next').addEventListener('click', function () {
-      //     if (pagination.currentPageGroupStart + pagination.pagesPerPage - 1 < pagination.getTotalPages()) {
-      //       pagination.setNextPageGroup();
-      //       pagination.goToPage(pagination.currentPageGroupStart);
-      //       displayPagination();
-      //     }
-      //   });
-      // }
-      // if (document.getElementById('last')) {
-      //   document.getElementById('last').addEventListener('click', function () {
-      //     const totalPages = pagination.getTotalPages();
-      //     pagination.goToPage(totalPages);
-      //     displayPagination();
-      //   });
-      // }
+      if (document.getElementById('next')) {
+        document.getElementById('next').addEventListener('click', function () {
+          if (pagination.currentPageGroupStart + pagination.pagesPerPage - 1 < pagination.getTotalPages()) {
+            pagination.setNextPageGroup();
+            pagination.goToPage(pagination.currentPageGroupStart);
+            displayPagination();
+          }
+        });
+      }
+      if (document.getElementById('last')) {
+        document.getElementById('last').addEventListener('click', function () {
+          const totalPages = pagination.getTotalPages();
+          pagination.goToPage(totalPages);
+          displayPagination();
+        });
+      }
     }
     displayPagination();
-
   </script>
 </body>
 
