@@ -34,6 +34,8 @@ public class BBSController {
   @GetMapping// get방식 /bbs
   //모든 게시글 목록을 조회후 반환하는 메소드. Model 객체를 통해 데이터를 뷰로 전달
   public String listAll(@RequestParam(value = "page", required = false, defaultValue = "1") int page, Model model) {
+
+    log.info("Requested page: {}", page); // 요청된 페이지 로그 추가
     int pageSize = 5; //페이지당 게시글 수
     int totalRecords = bbsSVC.getTotalRecords();
     log.info("page={}",page);

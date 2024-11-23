@@ -69,12 +69,23 @@
     </div>
   </div>
   <script>
+
+    // window.location.search: 현재 URL에서 ? 뒤의 쿼리 문자열만 가져옵니다. (예: "?page=2&category=books")
+    // new URLSearchParams(): 쿼리 문자열을 읽고, 개별 키-값 쌍으로 다룰 수 있는 객체를 생성합니다.
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // 쿼리스트링에서 'page' 값 읽기, 없으면 1
+    // .get('key'): 쿼리 문자열에서 특정 키의 값을 가져옵니다.
+    // 결과는 문자열로 반환됩니다. 숫자가 필요하다면 parseInt()를 사용합니다.
+    const currentPageFromURL = parseInt(urlParams.get('page'), 10) || 1;
+    const currentPageFromServer = currentPageFromURL;
     class Pagination {
       constructor(recordsPerPage, pagesPerPage) {
         this.totalRecords = 0;                     //총 레코드수
         this.recordsPerPage = recordsPerPage;       //페이지당 레코드 수
         this.pagesPerPage = pagesPerPage;           //페이지당 페이지 수
-        this.currentPage = 1;                       //현재 페이지
+        this.currentPage = currentPageFromServer;   //현재 페이지
         this.currentPageGroupStart = 1;             //현재 페이지의 시작페이지
       }
 
@@ -101,8 +112,21 @@
           return; // 유효하지 않은 페이지 번호일 경우 아무것도 하지 않음
         }
         this.currentPage = pageNumber;
-        console.log("goToPage의 currentPage:",this.currentPage);
+        console.log("goToPage의 currentPage:", this.currentPage);
         this.currentPageGroupStart = Math.floor((pageNumber - 1) / this.pagesPerPage) * this.pagesPerPage + 1; // 페이지 그룹 업데이트
+
+
+
+        // URL 갱신
+
+
+        const newURL = `${window.location.pathname}?page=${pageNumber}`;
+
+        //window.history.pushState의 원리와 사용법
+
+        //window.history.pushState는 브라우저의 **히스토리(뒤로 가기/앞으로 가기)**를 관리하는 메서드입니다. 
+        //이를 사용하면 페이지를 새로고침하지 않고도 URL을 변경할 수 있습니다.
+        window.history.pushState({ page: pageNumber }, '', newURL);
       }
 
       displayNavigation() {
@@ -111,27 +135,25 @@
 
         // 시작이 1페이지가 아니라면 처음과 이전버튼을 생성
         if (this.currentPageGroupStart > 1) {
-          pageNavigation += '<a href="/bbs?page=1">처음</a> <a href="/bbs?page=' + (this.currentPageGroupStart - 1) + '">이전</a> ';
+          pageNavigation += '<a href="#" class="nav-link" data-page="1">처음</a> <a href="#" class="nav-link" data-page="' + (this.currentPageGroupStart - 1) + '">이전</a> ';
         }
 
-        // for (let i = this.currentPageGroupStart; i < this.currentPageGroupStart + this.pagesPerPage && i <= totalPages; i++) {
-          for (let i = this.currentPageGroupStart; i <= totalPages; i++) {
-          console.log("displayNavigation의 currentPage:",this.currentPage);
-          // 현재 페이지라면, 페이지에 강조 표시
+        for (let i = this.currentPageGroupStart; i <= totalPages; i++) {
+          console.log("displayNavigation의 currentPage:", this.currentPage);
           if (i === this.currentPage) {
             pageNavigation += `<span class="active" id="page${i}">${i}</span> `; // 현재 페이지는 버튼이 아닌 span으로 표시
           } else {
-            pageNavigation += `<a href="/bbs?page=${i}" id="page${i}">${i}</a> `; // 페이지 링크
+            pageNavigation += `<a href="" class="nav-link" data-page="${i}" id="page${i}">${i}</a> `; // 페이지 링크
           }
         }
+
         // 다음과 마지막 버튼 추가
         if (this.currentPageGroupStart + this.pagesPerPage - 1 < totalPages) {
-          pageNavigation += '<a href="/bbs?page=' + (this.currentPageGroupStart + this.pagesPerPage) + '">다음</a> <a href="/bbs?page=' + totalPages + '">끝</a>';
+          pageNavigation += '<a href="" class="nav-link" data-page="' + (this.currentPageGroupStart + this.pagesPerPage) + '">다음</a> <a href="#" class="nav-link" data-page="' + totalPages + '">끝</a>';
         }
+
         return pageNavigation;
       }
-
-
 
       setCurrentPage(pageNumber) {
         this.currentPage = pageNumber;
@@ -154,60 +176,65 @@
       }
     }
 
+    const pagination = new Pagination(5, 5);
+    const totalRecords = parseInt(document.getElementById('pagination').dataset.totalRecords, 10);//여기에 bbs 테이블의 레코드 수를 가져와야함. SELECT COUNT(*) FROM BBS;
+    pagination.totalRecords = totalRecords;
+
+
     function displayPagination() {
-      console.log("Total Records:", totalRecords);
+      console.log("displayPagination 호출됨"); // 추가된 로그
+      // console.log("Total Records:", totalRecords);
       document.getElementById('pagination').innerHTML = pagination.displayNavigation();
 
       const startRow = pagination.getStartRow();
       const endRow = pagination.getEndRow();
       console.log(`Displaying records from ${startRow} to ${endRow}`);
 
-      for (let i = pagination.currentPageGroupStart; i < pagination.currentPageGroupStart + pagination.pagesPerPage && i <= pagination.getTotalPages(); i++) {
-        document.getElementById(`page${i}`).addEventListener('click', function () {
-          pagination.goToPage(i);
-          displayPagination();
+      // 페이지 링크에 대한 이벤트 리스너 추가
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        link.addEventListener('click', function (event) {
+          // event.preventDefault(); // 기본 링크 동작 방지
+          const pageNumber = parseInt(this.getAttribute('data-page'));
+          pagination.goToPage(pageNumber); // 페이지 이동
+          displayPagination(); // UI 업데이트
+          // location.href = `bbs?page=${pageNumber}`;
         });
-      }
+      });
 
-      if (document.getElementById('first')) {
-        document.getElementById('first').addEventListener('click', function () {
-          pagination.goToPage(1);
-          displayPagination();
-        });
-      }
-      if (document.getElementById('prev')) {
-        document.getElementById('prev').addEventListener('click', function () {
-          if (pagination.currentPageGroupStart > 1) {
-            pagination.setPrevPageGroup();
-            pagination.goToPage(pagination.currentPageGroupStart);
-            displayPagination();
-          }
-        });
-      }
+      // if (document.getElementById('first')) {
+      //   document.getElementById('first').addEventListener('click', function () {
+      //     pagination.goToPage(1);
+      //     displayPagination();
+      //   });
+      // }
+      // if (document.getElementById('prev')) {
+      //   document.getElementById('prev').addEventListener('click', function () {
+      //     if (pagination.currentPageGroupStart > 1) {
+      //       pagination.setPrevPageGroup();
+      //       pagination.goToPage(pagination.currentPageGroupStart);
+      //       displayPagination();
+      //     }
+      //   });
+      // }
 
-      if (document.getElementById('next')) {
-        document.getElementById('next').addEventListener('click', function () {
-          if (pagination.currentPageGroupStart + pagination.pagesPerPage - 1 < pagination.getTotalPages()) {
-            pagination.setNextPageGroup();
-            pagination.goToPage(pagination.currentPageGroupStart);
-            displayPagination();
-          }
-        });
-      }
-      if (document.getElementById('last')) {
-        document.getElementById('last').addEventListener('click', function () {
-          const totalPages = pagination.getTotalPages();
-          pagination.goToPage(totalPages);
-          displayPagination();
-        });
-      }
+      // if (document.getElementById('next')) {
+      //   document.getElementById('next').addEventListener('click', function () {
+      //     if (pagination.currentPageGroupStart + pagination.pagesPerPage - 1 < pagination.getTotalPages()) {
+      //       pagination.setNextPageGroup();
+      //       pagination.goToPage(pagination.currentPageGroupStart);
+      //       displayPagination();
+      //     }
+      //   });
+      // }
+      // if (document.getElementById('last')) {
+      //   document.getElementById('last').addEventListener('click', function () {
+      //     const totalPages = pagination.getTotalPages();
+      //     pagination.goToPage(totalPages);
+      //     displayPagination();
+      //   });
+      // }
     }
-
-    const pagination = new Pagination(5, 5);
-    const totalRecords = parseInt(document.getElementById('pagination').dataset.totalRecords, 10);//여기에 bbs 테이블의 레코드 수를 가져와야함. SELECT COUNT(*) FROM BBS;
-    console.log(totalRecords);
-    pagination.totalRecords = totalRecords;
-    console.log(pagination.totalRecords);
     displayPagination();
 
   </script>
