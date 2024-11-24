@@ -41,16 +41,35 @@ public class ReplyBbsDAOImpl implements ReplyBbsDAO{
   }
 
   @Override
-  public List<ReplyBbs> listAll(Long bbsId) {
-    //sql
+  public List<ReplyBbs> listAll(int page, Long bbsId) {
+
+    int pageSize = 5;
+    int startRow = (page - 1) * pageSize + 1;
+    int endRow = page*pageSize;
+
     StringBuffer sql = new StringBuffer();
-    sql.append("select reply_id, comments, writer, cdate, udate " );
-    sql.append(" from replybbs " );
-    sql.append(" where bbs_id = :bbsId ");
-    sql.append("order by reply_id asc ");
+    sql.append("SELECT * FROM ( ");
+    sql.append("    SELECT reply_id, bbs_id, writer, comments, cdate, udate, ");
+    sql.append("           ROW_NUMBER() OVER (ORDER BY reply_id DESC) AS rn ");
+    sql.append("    FROM replybbs ");
+    sql.append("    WHERE bbs_id = :bbsId "); // bbsId 조건 추가
+    sql.append(") subquery "); // 서브쿼리 이름 추가
+    sql.append("WHERE rn BETWEEN :startRow AND :endRow");
+
+    //sql
+//    StringBuffer sql = new StringBuffer();
+//    sql.append("select reply_id, comments, writer, cdate, udate " );
+//    sql.append(" from replybbs " );
+//    sql.append(" where bbs_id = :bbsId ");
+//    sql.append("order by reply_id asc ");
 
     // 파라미터 설정
-    Map<String, Long> params = Map.of("bbsId", bbsId);
+    Map<String, Object> params = Map.of(
+        "bbsId", bbsId,
+        "startRow", startRow,
+        "endRow", endRow
+    );
+
 
     List<ReplyBbs> list = template.query(sql.toString(), params, BeanPropertyRowMapper.newInstance(ReplyBbs.class));
     return list;
@@ -105,4 +124,17 @@ public class ReplyBbsDAOImpl implements ReplyBbsDAO{
     return Optional.of(replyBbs);
   }
 
+  @Override
+  public int getTotalReplyRecord(Long bbsId) {
+
+    StringBuffer sql = new StringBuffer();
+    sql.append("select count(*) " );
+    sql.append(" from replybbs " );
+    sql.append(" where bbs_id = :bbsId ");
+
+    SqlParameterSource param = new MapSqlParameterSource()
+        .addValue("bbsId",bbsId);
+
+    return template.queryForObject(sql.toString(), param,Integer.class);
+  }
 }

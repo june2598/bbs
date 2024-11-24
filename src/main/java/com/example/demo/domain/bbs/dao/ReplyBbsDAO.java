@@ -11,7 +11,7 @@ public interface ReplyBbsDAO {
   Long save(ReplyBbs replyBbs);
 
   //댓글목록
-  List<ReplyBbs> listAll(Long bbsId);
+  List<ReplyBbs> listAll(int page, Long bbsId);
 
   //댓글조회
   Optional<ReplyBbs> findById(Long replyId);
@@ -21,5 +21,8 @@ public interface ReplyBbsDAO {
 
   //댓글수정
   int updateById(Long replyId, ReplyBbs replyBbs);
+
+  //총 댓글수 조회
+  int getTotalReplyRecord(Long bbsId);
 
 }

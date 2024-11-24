@@ -70,6 +70,9 @@
       <div id="replyWrap">
         <!-- 댓글 목록이 여기에 들어옵니다. -->
       </div>
+      <div id="replyPaging">
+        <!-- 여기에 댓글페이징이 들어옵니다.-->
+      </div>
       <div class="replyAdd-title">
         <h3 id="replyAdd-header">댓글 작성</h3>  <input type="text" name="writer" readonly
         th:value="${session.loginOkMember != null ? session.loginOkMember.nickname : ''}" class="nickname-input">  <!-- 비로그인 상태일 시 작성자 필드 빈값으로 설정 -->

@@ -1,5 +1,6 @@
 package com.example.demo.web;
 
+import com.example.demo.domain.bbs.replybbs.ApiResponseData;
 import com.example.demo.domain.bbs.svc.ReplyBbsSVC;
 import com.example.demo.domain.entity.ReplyBbs;
 import com.example.demo.web.api.ApiResponse;
@@ -31,15 +32,20 @@ public class ApiReplyBbsController {
 
   //댓글 목록
   @GetMapping("/{bbsId}")
-  public ApiResponse<List<ReplyBbs>> all(@PathVariable(name = "bbsId") Long bbsId) {
-    ApiResponse<List<ReplyBbs>> res;
-    List<ReplyBbs> replyBbsList = replyBbsSVC.listAll(bbsId);
+  public ApiResponse<ApiResponseData> all(
+      @PathVariable(name = "bbsId") Long bbsId,
+      @RequestParam(name = "page", defaultValue = "1") int page) {
+
+
+    List<ReplyBbs> replyBbsList = replyBbsSVC.listAll(page, bbsId);
+    int totalCnt = replyBbsSVC.getTotalReplyRecord(bbsId);
+
     if (!replyBbsList.isEmpty()) {
-      res = ApiResponse.of(ApiResponseCode.SUCCESS, replyBbsList);
+      ApiResponseData responseData = new ApiResponseData(replyBbsList, totalCnt);
+      return ApiResponse.of(ApiResponseCode.SUCCESS, responseData);
     } else {
       throw new BusinessException(ApiResponseCode.ENTITY_NOT_FOUND, null);
     }
-    return res;
   }
 
   //댓글 등록

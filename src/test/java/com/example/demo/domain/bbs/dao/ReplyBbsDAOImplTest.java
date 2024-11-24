@@ -33,8 +33,8 @@ class ReplyBbsDAOImplTest {
   @Test
   @DisplayName("댓글목록")
   void listAll() {
-    Long bbsId = 141L;
-    List<ReplyBbs> list = replyBbsDAO.listAll(bbsId);
+    Long bbsId = 516L;
+    List<ReplyBbs> list = replyBbsDAO.listAll(2,bbsId);
     for (ReplyBbs replyBbs : list) {
       log.info("replybbs={}", replyBbs);
     }

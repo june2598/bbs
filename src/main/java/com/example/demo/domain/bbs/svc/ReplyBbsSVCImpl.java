@@ -23,8 +23,8 @@ public class ReplyBbsSVCImpl implements ReplyBbsSVC{
   }
 
   @Override
-  public List<ReplyBbs> listAll(Long bbsId) {
-    return replyBbsDAO.listAll(bbsId);
+  public List<ReplyBbs> listAll(int page, Long bbsId) {
+    return replyBbsDAO.listAll(page, bbsId);
   }
 
   @Override
@@ -40,5 +40,10 @@ public class ReplyBbsSVCImpl implements ReplyBbsSVC{
   @Override
   public Optional<ReplyBbs> findById(Long replyId) {
     return replyBbsDAO.findById(replyId);
+  }
+
+  @Override
+  public int getTotalReplyRecord(Long bbsId) {
+    return replyBbsDAO.getTotalReplyRecord(bbsId);
   }
 }

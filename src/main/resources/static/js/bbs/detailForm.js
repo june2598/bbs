@@ -1,10 +1,22 @@
 import { ajax } from '/js/common.js';
+
+function getPageFromUrl() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return parseInt(urlParams.get('page')) || 1; // 기본값은 1
+}
+
+
 async function findAllComment() {
+  const page = getPageFromUrl();
   const bbsId = document.getElementById('bbsId').value; // 게시글 번호 가져오기
-  const url = `http://localhost:9070/api/replybbs/${bbsId}`; // 댓글 API URL
+  const url = `http://localhost:9070/api/replybbs/${bbsId}?page=${page}`; // 댓글 API URL
+  console.log('Fetching comments from URL:', url);
+
   try {
     const comments = await ajax.get(url); // 댓글 목록 가져오기
+    console.log('Comments:', comments);
     displayComments(comments); // 댓글 목록을 화면에 표시
+    setupPagination(comments.body.totalCnt, page);
   } catch (error) {
     console.error(error.message);
   }
@@ -14,7 +26,8 @@ function displayComments(response) {
   const replyWrap = document.getElementById('replyWrap'); // 댓글을 표시할 요소
   replyWrap.innerHTML = ''; // 기존 댓글 초기화
 
-  const comments = response.body; // response.body에서 댓글 목록 가져오기
+  const comments = response.body.comments; // response.body에서 댓글 목록 가져오기
+  console.log('displayComments의 comments:', comments);
 
   if (comments && comments.length > 0) {
     comments.forEach(comment => {
@@ -26,6 +39,70 @@ function displayComments(response) {
   }
 }
 
+
+function disableActiveButton() {
+  const activeButton = document.querySelector('.active');
+  if (activeButton) {
+    activeButton.disabled = true; // active 클래스를 가진 버튼 비활성화
+  }
+}
+
+function setupPagination(totalCnt, currentPage) {
+  const paginationWrap = document.getElementById('replyPaging');
+  paginationWrap.innerHTML = '';//기존 페이징 초기화
+
+  const pageSize = 5;
+  console.log('setup에서의 totalCnt', totalCnt);
+  const totalPages = Math.ceil(totalCnt / pageSize); //총 페이지수
+  console.log('setup에서의 totalPages:', totalPages);
+  console.log('setup에서의 currentPage:', currentPage);
+
+  const startPage = Math.floor((currentPage - 1) / pageSize) * pageSize + 1;
+  const endPage = Math.min(startPage + pageSize - 1, totalPages);
+
+  for (let i = startPage; i <= endPage; i++) {
+    const pageButton = document.createElement('button');
+    console.log(i);
+    pageButton.textContent = i;
+    if (i === currentPage) {
+      pageButton.classList.add('active');
+    }
+    pageButton.addEventListener('click', () => {
+      window.history.pushState({}, '', `?page=${i}`);
+      findAllComment(i);// 해당페이지의 댓글목록 불러오기
+      setupPagination(totalCnt, i);
+      disableActiveButton();
+    });
+    paginationWrap.appendChild(pageButton);
+  }
+  // 이전 버튼 추가
+  if (startPage > 1) {
+    const prevButton = document.createElement('button');
+    prevButton.textContent = '...';
+    prevButton.addEventListener('click', () => {
+      setupPagination(totalCnt, startPage - 1); // 이전 페이지로 이동
+    });
+
+    //prevButton을 paginationWrap의 첫 번째 자식 요소 앞에 삽입. 즉, 페이지네이션의 가장 왼쪽에 이전 페이지 버튼을 추가.
+    paginationWrap.insertBefore(prevButton, paginationWrap.firstChild);
+  }
+
+  // 다음 버튼 추가
+  if (endPage < totalPages) {
+    const nextButton = document.createElement('button');
+    nextButton.textContent = '...';
+    nextButton.addEventListener('click', () => {
+      setupPagination(totalCnt, endPage + 1); // 다음 페이지로 이동
+    });
+    paginationWrap.appendChild(nextButton);
+  }
+}
+
+
+// 페이지가 로드될 때 댓글 목록을 불러오기
+window.onload = function () {
+  findAllComment();
+};
 // 댓글 추가 기능
 document.getElementById('btnAdd').addEventListener('click', async () => {
 
@@ -58,11 +135,6 @@ document.getElementById('btnAdd').addEventListener('click', async () => {
     console.error(error.message);
   }
 });
-
-// 페이지가 로드될 때 댓글 목록을 불러오기
-window.onload = function () {
-  findAllComment();
-};
 
 // 댓글 수정 및 삭제 이벤트
 const replyWrap = document.getElementById('replyWrap');
@@ -130,7 +202,7 @@ replyWrap.addEventListener('click', async (e) => {
     console.log('기존 작성자:', writer);
     console.log('기존 작성날짜:', cdate);
     console.log('기존 수정날짜:', udate);
-    
+
     const $li = createLiReadMode({ comments: initialContent, writer, cdate, udate, reply_id: targetLi.getAttribute('data-reply-id') }); // 수정된 댓글 내용과 작성자 설정
     targetLi.parentNode.replaceChild($li, targetLi);
   }
