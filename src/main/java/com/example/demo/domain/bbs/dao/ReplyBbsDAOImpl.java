@@ -26,6 +26,7 @@ public class ReplyBbsDAOImpl implements ReplyBbsDAO{
 
   private final NamedParameterJdbcTemplate template;
 
+
   @Override
   public Long save(ReplyBbs replybbs) {
     StringBuffer sql = new StringBuffer();
@@ -38,14 +39,20 @@ public class ReplyBbsDAOImpl implements ReplyBbsDAO{
     Number ridNumber = (Number) keyholder.getKeys().get("reply_id");
     long rid = ridNumber.longValue();
     return rid;
+
   }
+//  @Override
+//  public List<ReplyBbs> listAll(Long bbsId) {
+//    return List.of();
+//  }
+
 
   @Override
-  public List<ReplyBbs> listAll(int page, Long bbsId) {
+  public List<ReplyBbs> listAll(int currentPage, Long bbsId) {
 
-    int pageSize = 5;
-    int startRow = (page - 1) * pageSize + 1;
-    int endRow = page*pageSize;
+    int pageSize = 10;
+    int startRow = (currentPage - 1) * pageSize + 1;
+    int endRow = currentPage*pageSize;
 
     StringBuffer sql = new StringBuffer();
     sql.append("SELECT * FROM ( ");

@@ -1,6 +1,6 @@
 package com.example.demo.web;
 
-import com.example.demo.domain.bbs.replybbs.ApiResponseData;
+import com.example.demo.web.api.replybbs.ApiResponseData;
 import com.example.demo.domain.bbs.svc.ReplyBbsSVC;
 import com.example.demo.domain.entity.ReplyBbs;
 import com.example.demo.web.api.ApiResponse;
@@ -34,14 +34,14 @@ public class ApiReplyBbsController {
   @GetMapping("/{bbsId}")
   public ApiResponse<ApiResponseData> all(
       @PathVariable(name = "bbsId") Long bbsId,
-      @RequestParam(name = "page", defaultValue = "1") int page) {
+      @RequestParam(name = "page", defaultValue = "1") int currentPage) {
 
 
-    List<ReplyBbs> replyBbsList = replyBbsSVC.listAll(page, bbsId);
+    List<ReplyBbs> replyBbsList = replyBbsSVC.listAll(currentPage, bbsId);
     int totalCnt = replyBbsSVC.getTotalReplyRecord(bbsId);
 
     if (!replyBbsList.isEmpty()) {
-      ApiResponseData responseData = new ApiResponseData(replyBbsList, totalCnt);
+      ApiResponseData responseData = new ApiResponseData(replyBbsList, totalCnt);   //댓글목록과 총 댓글수를 다 가져오기 위함
       return ApiResponse.of(ApiResponseCode.SUCCESS, responseData);
     } else {
       throw new BusinessException(ApiResponseCode.ENTITY_NOT_FOUND, null);

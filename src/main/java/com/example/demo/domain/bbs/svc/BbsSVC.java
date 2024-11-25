@@ -9,8 +9,14 @@ public interface BbsSVC {
 
 //  //등록
   Long save(Bbs bbs);
+
+//목록
+List<Bbs> listAll();
+
 //
-  //목록
+//List<Bbs> listAll(int reqPage, int reqRec);
+
+  //페이지당 목록
   List<Bbs> listAll(int page);
 
 //  //조회

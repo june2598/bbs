@@ -2,10 +2,8 @@ import { ajax } from '/js/common.js';
 
 function getPageFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
-  return parseInt(urlParams.get('page')) || 1; // 기본값은 1
+  return parseInt(urlParams.get('page')) || 1; // 문자열로 받아오기떄문에 변환을 해줘야함. 기본값은 1
 }
-
-
 async function findAllComment() {
   const page = getPageFromUrl();
   const bbsId = document.getElementById('bbsId').value; // 게시글 번호 가져오기
@@ -16,7 +14,7 @@ async function findAllComment() {
     const comments = await ajax.get(url); // 댓글 목록 가져오기
     console.log('Comments:', comments);
     displayComments(comments); // 댓글 목록을 화면에 표시
-    setupPagination(comments.body.totalCnt, page);
+    createPagenation(comments.body.totalCnt, page);
   } catch (error) {
     console.error(error.message);
   }
@@ -40,62 +38,98 @@ function displayComments(response) {
 }
 
 
-function disableActiveButton() {
+//현재 페이지 버튼 비활성화 시키는 함수
+function disableActiveButton() {        
   const activeButton = document.querySelector('.active');
   if (activeButton) {
     activeButton.disabled = true; // active 클래스를 가진 버튼 비활성화
   }
 }
 
-function setupPagination(totalCnt, currentPage) {
+//매개변수로 총 댓글수 (totalCnt) 와 현재 페이지 (currentPage) 를 받음 
+function createPagenation(totalCnt, currentPage) {
   const paginationWrap = document.getElementById('replyPaging');
   paginationWrap.innerHTML = '';//기존 페이징 초기화
 
-  const pageSize = 5;
+  const  paginationSize = 5; // 페이지 네비게이션에서 보여줄 페이지 수
+  const commentsPerPage = 10; // 1페이지당 댓글 수
   console.log('setup에서의 totalCnt', totalCnt);
-  const totalPages = Math.ceil(totalCnt / pageSize); //총 페이지수
+  const totalPages = Math.ceil(totalCnt / commentsPerPage); // 총 페이지 수
   console.log('setup에서의 totalPages:', totalPages);
   console.log('setup에서의 currentPage:', currentPage);
 
-  const startPage = Math.floor((currentPage - 1) / pageSize) * pageSize + 1;
-  const endPage = Math.min(startPage + pageSize - 1, totalPages);
+  const startPage = Math.floor((currentPage - 1) /  paginationSize) *  paginationSize + 1;
+  const endPage = Math.min(startPage +  paginationSize - 1, totalPages);
+  console.log('setup에서의 startPage:', startPage);
+  console.log('setup에서의 endPage:', endPage);
 
-  for (let i = startPage; i <= endPage; i++) {
-    const pageButton = document.createElement('button');
-    console.log(i);
-    pageButton.textContent = i;
-    if (i === currentPage) {
-      pageButton.classList.add('active');
+    // 처음 버튼 추가
+    if (startPage > 1) {
+      const goFirstButton = document.createElement('button');
+      goFirstButton.textContent = '<<';
+      goFirstButton.addEventListener('click', () => {
+        window.history.pushState({}, '', `?page=1`);
+        findAllComment(1); // 첫 페이지의 댓글 목록 불러오기
+      });
+      paginationWrap.appendChild(goFirstButton);
     }
-    pageButton.addEventListener('click', () => {
-      window.history.pushState({}, '', `?page=${i}`);
-      findAllComment(i);// 해당페이지의 댓글목록 불러오기
-      setupPagination(totalCnt, i);
-      disableActiveButton();
-    });
-    paginationWrap.appendChild(pageButton);
-  }
-  // 이전 버튼 추가
+
+      // 이전 버튼 추가
   if (startPage > 1) {
-    const prevButton = document.createElement('button');
-    prevButton.textContent = '...';
-    prevButton.addEventListener('click', () => {
-      setupPagination(totalCnt, startPage - 1); // 이전 페이지로 이동
+    const goPrevButton = document.createElement('button');
+    goPrevButton.textContent = '<';
+    goPrevButton.addEventListener('click', () => {
+      const newPage = startPage - 1; // 이전 페이지 번호
+      window.history.pushState({}, '', `?page=${newPage}`);
+      findAllComment(newPage); // 이전 페이지의 댓글 목록 불러오기
     });
 
     //prevButton을 paginationWrap의 첫 번째 자식 요소 앞에 삽입. 즉, 페이지네이션의 가장 왼쪽에 이전 페이지 버튼을 추가.
-    paginationWrap.insertBefore(prevButton, paginationWrap.firstChild);
+    paginationWrap.appendChild(goPrevButton);
   }
+
+  //페이지 버튼 생성
+
+
+  for (let i = startPage; i <= endPage; i++) {
+    const paginationButton = document.createElement('button');
+    console.log(i);
+    paginationButton.innerText = i;
+    if (i === currentPage) {
+      paginationButton.classList.add('active');
+      disableActiveButton();
+    }
+    paginationButton.addEventListener('click', () => {
+      window.history.pushState({}, '', `?page=${i}`);
+      findAllComment();// 해당페이지의 댓글목록 불러오기
+    });
+    paginationWrap.appendChild(paginationButton);
+  }
+
 
   // 다음 버튼 추가
   if (endPage < totalPages) {
-    const nextButton = document.createElement('button');
-    nextButton.textContent = '...';
-    nextButton.addEventListener('click', () => {
-      setupPagination(totalCnt, endPage + 1); // 다음 페이지로 이동
+    const goNextButton = document.createElement('button');
+    goNextButton.textContent = '>';
+    goNextButton.addEventListener('click', () => {
+      const newPage = endPage + 1; // 다음 페이지 번호
+      window.history.pushState({}, '', `?page=${newPage}`);
+      findAllComment(newPage); // 다음 페이지의 댓글 목록 불러오기
     });
-    paginationWrap.appendChild(nextButton);
+    paginationWrap.appendChild(goNextButton);
   }
+
+    // 마지막 버튼 추가
+    if (endPage < totalPages) {
+      const goLastButton = document.createElement('button');
+      goLastButton.textContent = '>>';
+      goLastButton.addEventListener('click', () => {
+        window.history.pushState({}, '', `?page=${totalPages}`);
+        findAllComment(totalPages); // 마지막 페이지의 댓글 목록 불러오기
+      });
+      paginationWrap.appendChild(goLastButton);
+    }
+  disableActiveButton();  //현재 페이지 비활성화
 }
 
 

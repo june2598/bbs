@@ -1,0 +1,16 @@
+@charset "UTF-8";
+
+#replyPaging{
+text-align:center;
+
+}
+#replyPaging button{
+  width: 30px;
+  height: 30px;
+  margin: 5px;
+
+}
+
+.active {
+  color: red;
+}

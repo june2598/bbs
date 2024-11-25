@@ -40,6 +40,32 @@ public class BbsDAOImpl implements BbsDAO {
   }
 
   @Override
+  public List<Bbs> listAll() {
+    StringBuffer sql = new StringBuffer();
+    sql.append("select * " );
+    sql.append("  from bbs " );
+    sql.append("  order by bbs_id desc ");
+
+    SqlParameterSource param = new MapSqlParameterSource();
+
+    List<Bbs> list = template.query(sql.toString(), param, new BeanPropertyRowMapper<>(Bbs.class));
+    return list;
+  }
+
+//  @Override
+//  public List<Bbs> listAll(int reqPage, int reqRec) {
+//    StringBuffer sql = new StringBuffer();
+//    sql.append(" select * " );
+//    sql.append("     from bbs " );
+//    sql.append(" order by bbs_id desc ");
+//    sql.append(" offset (:reqPage-1) * :reqRec rows fetch first :reqRec rows only " );
+//
+//    Map<String, Integer> param = Map.of("reqPage", reqPage, "reqRec", reqRec);
+//    List<Bbs> list = template.query(sql.toString(), param, new BeanPropertyRowMapper<>(Bbs.class));
+//    return list;
+//  }
+
+  @Override
   public List<Bbs> listAll(int page) {
     int pageSize = 5;
     int startRow = (page - 1) * pageSize + 1; // 시작 행 번호

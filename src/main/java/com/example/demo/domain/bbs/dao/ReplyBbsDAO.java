@@ -10,8 +10,11 @@ public interface ReplyBbsDAO {
   //댓글등록
   Long save(ReplyBbs replyBbs);
 
-  //댓글목록
-  List<ReplyBbs> listAll(int page, Long bbsId);
+//  //댓글 목록(전체)
+//  List<ReplyBbs> listAll(Long bbsId);
+
+  //댓글목록(페이징)
+  List<ReplyBbs> listAll(int currentPage, Long bbsId);
 
   //댓글조회
   Optional<ReplyBbs> findById(Long replyId);

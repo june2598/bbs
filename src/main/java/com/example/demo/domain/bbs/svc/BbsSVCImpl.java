@@ -30,6 +30,16 @@ public class BbsSVCImpl implements BbsSVC{
   }
 
   @Override
+  public List<Bbs> listAll() {
+    return bbsDAO.listAll();
+  }
+
+//  @Override
+//  public List<Bbs> listAll(int reqPage, int reqRec) {
+//    return bbsDAO.listAll(reqPage,reqRec);
+//  }
+
+  @Override
   public List<Bbs> listAll(int page) {
     return bbsDAO.listAll(page);
   }

@@ -108,3 +108,17 @@
     .buttonWrap button:hover {
       background-color: #0056b3;
     }
+
+    .pagination{
+      text-align: center;
+    }
+
+    .pagination button{
+      width: 30px;
+      height: 30px;
+      margin: 5px;
+    }
+
+    #active {
+      color: red; /* 비활성화된 버튼의 글자색 */
+  }

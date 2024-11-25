@@ -16,11 +16,19 @@ import java.util.Map;
 public class ApiResponse<T> {
   private Header header;    //응답헤더
   private T body;          //응답바디
+  private int reqCnt;       //
   private int totalCnt;    //총건수
 
   private ApiResponse(Header header, T body, int totalCnt) {
     this.header = header;
     this.body = body;
+    this.totalCnt = totalCnt;
+  }
+
+  private ApiResponse(Header header, T body, int reqCnt, int totalCnt) {
+    this.header = header;
+    this.body = body;
+    this.reqCnt = reqCnt;
     this.totalCnt = totalCnt;
   }
 
@@ -54,7 +62,17 @@ public class ApiResponse<T> {
     return new ApiResponse<>(
         new Header(responseCode.getRtcd(), responseCode.getRtmsg()),
         body,
-        calculateTotalCount(body)
+        calculateRecCount(body)
+    );
+  }
+
+  // 3. 기본 응답 생성 (details 없는 경우, totalCnt)
+  public static <T> ApiResponse<T> of(ApiResponseCode responseCode, T body, int totalCnt) {
+    return new ApiResponse<>(
+        new Header(responseCode.getRtcd(), responseCode.getRtmsg()),
+        body,
+        calculateRecCount(body),
+        totalCnt
     );
   }
 
@@ -66,12 +84,27 @@ public class ApiResponse<T> {
     return new ApiResponse<>(
         new DetailHeader(responseCode.getRtcd(), responseCode.getRtmsg(), details),
         body,
-        calculateTotalCount(body)
+        calculateRecCount(body)
+    );
+  }
+
+
+  // 4. 상세 정보를 포함한 응답 생성 (totalCnt)
+  public static <T> ApiResponse<T> withDetails(
+      ApiResponseCode responseCode,
+      Map<String, String> details,
+      T body,
+      int totalCnt) {
+    return new ApiResponse<>(
+        new DetailHeader(responseCode.getRtcd(), responseCode.getRtmsg(), details),
+        body,
+        calculateRecCount(body),
+        totalCnt
     );
   }
 
   // 5. totalCnt 계산 로직
-  private static <T> int calculateTotalCount(T body) {
+  private static <T> int calculateRecCount(T body) {
     if (body == null) return 0;
 
     if (ClassUtils.isAssignable(Collection.class, body.getClass())) {

@@ -11,6 +11,12 @@ public interface BbsDAO {
   Long save(Bbs bbs);
 
   //목록
+  List<Bbs> listAll();
+
+  //
+//  List<Bbs> listAll(int reqPage, int reqRec);
+
+  //페이지목록
   List<Bbs> listAll(int page);
 
   //조회
