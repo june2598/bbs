@@ -13,11 +13,8 @@ public interface BbsDAO {
   //목록
   List<Bbs> listAll();
 
-  //
-//  List<Bbs> listAll(int reqPage, int reqRec);
-
-  //페이지목록
-  List<Bbs> listAll(int page);
+  //목록(페이징)
+  List<Bbs> listAll(int reqPage, int reqRec);
 
   //조회
   Optional<Bbs> findById(Long bbsId);

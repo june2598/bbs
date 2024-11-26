@@ -265,8 +265,8 @@ render() {
 
     // 처음,이전 버튼 표시
     if (!this.state.isFirstGroup) {
-        nav.appendChild(this.createButton('처음', () => this.handleFirstClick()));
-        nav.appendChild(this.createButton('이전', () => this.handlePrevClick()));
+        nav.appendChild(this.createButton('<<', () => this.handleFirstClick()));
+        nav.appendChild(this.createButton('<', () => this.handlePrevClick()));
     }
 
     // 페이지 번호 버튼 표시
@@ -282,8 +282,8 @@ render() {
 
     // 다음,끝 버튼 표시
     if (!this.state.isLastGroup) {
-        nav.appendChild(this.createButton('다음', () => this.handleNextClick()));
-        nav.appendChild(this.createButton('끝', () => this.handleLastClick()));
+        nav.appendChild(this.createButton('>', () => this.handleNextClick()));
+        nav.appendChild(this.createButton('>>', () => this.handleLastClick()));
     }
 
     this.container.appendChild(nav);

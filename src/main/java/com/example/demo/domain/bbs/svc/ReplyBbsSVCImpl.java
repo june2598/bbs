@@ -23,8 +23,8 @@ public class ReplyBbsSVCImpl implements ReplyBbsSVC{
   }
 
   @Override
-  public List<ReplyBbs> listAll(int currentPage, Long bbsId) {
-    return replyBbsDAO.listAll(currentPage, bbsId);
+  public List<ReplyBbs> listAll(int reqPage, int reqRec, Long bbsId) {
+    return replyBbsDAO.listAll(reqPage,reqRec, bbsId);
   }
 
   @Override

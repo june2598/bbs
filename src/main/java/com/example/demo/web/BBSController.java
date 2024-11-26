@@ -33,20 +33,26 @@ public class BBSController {
   //목록양식
   @GetMapping// get방식 /bbs
   //모든 게시글 목록을 조회후 반환하는 메소드. Model 객체를 통해 데이터를 뷰로 전달
-  public String listAll(@RequestParam(value = "page", required = false, defaultValue = "1") int page, Model model) {
+  public String listAll(@RequestParam(value = "reqPage", defaultValue = "1") Integer reqPage,   //요청 페이지
+                        @RequestParam(value = "reqRec", defaultValue = "10") Integer reqRec,    //요청 페이지 레코드수(한 페이지에 보여줄 레코드 수)
+                        Model model) {
 
-    log.info("Requested page: {}", page); // 요청된 페이지 로그 추가
-//    int pageSize = 5; //페이지당 게시글 수
-    int totalRecords = bbsSVC.getTotalRecords();
-    log.info("page={}",page);
+    log.info("Requested reqPage: {}", reqPage); // 요청된 페이지 로그 추가
+    log.info("Requested reqRec: {}", reqRec); // 요청된 페이지 레코드 수 로그 추가
+
+
+    List<Bbs> list = bbsSVC.listAll(reqPage,reqRec);
+    int totalRecords = bbsSVC.getTotalRecords();  //총 게시글 수 추가
     log.info("totalRecords={}",totalRecords);
+    // 총 페이지 수 계산
+    int totalPages = (int) Math.ceil((double) totalRecords / reqRec);
 
-    // startRow와 endRow 계산
-//    int startRow = (page - 1) * pageSize;
-//    int endRow = pageSize;
+    // 페이지 네비게이션을 위한 시작 페이지와 끝 페이지 계산
+    int pageSize = 10; // 한 번에 보여줄 페이지 수
 
-    //모든 게시글 조회
-    List<Bbs> list = bbsSVC.listAll(page);
+    int startPage = ((reqPage - 1) / pageSize) * pageSize + 1;      // 페이지 네비게이션 시작점 지정
+    int endPage = Math.min(startPage + pageSize - 1, totalPages);   // 페이지 네비게이션 엔드포인트 지정
+
     //게시글 정보를 담을 리스트생성
     List<AllForm> all = new ArrayList<>();
     //향상된 for문 - 게시글 리스트를 순회
@@ -66,9 +72,11 @@ public class BBSController {
     //모델에 리스트를 추가해 뷰에서 사용할수 있도록 설정
     model.addAttribute("all", all);
     model.addAttribute("totalRecords",totalRecords);
-//    model.addAttribute("currentPage", page); // 현재 페이지 정보 추가
-//    model.addAttribute("pageSize", pageSize); // 페이지 사이즈 정보 추가
-//    model.addAttribute("totalPages", (int) Math.ceil((double) totalRecords / pageSize)); // 총 페이지 수 계산
+    model.addAttribute("reqPage",reqPage);
+    model.addAttribute("reqRec",reqRec);
+    model.addAttribute("totalPages", totalPages);
+    model.addAttribute("startPage", startPage);
+    model.addAttribute("endPage", endPage);
 
     return "bbs/list";    // list 뷰를 반환
   }

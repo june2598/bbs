@@ -1,6 +1,5 @@
 package com.example.demo.web;
 
-import com.example.demo.web.api.replybbs.ApiResponseData;
 import com.example.demo.domain.bbs.svc.ReplyBbsSVC;
 import com.example.demo.domain.entity.ReplyBbs;
 import com.example.demo.web.api.ApiResponse;
@@ -32,20 +31,21 @@ public class ApiReplyBbsController {
 
   //댓글 목록
   @GetMapping("/{bbsId}")
-  public ApiResponse<ApiResponseData> all(
+  public ApiResponse<List<ReplyBbs>> reqPage(
       @PathVariable(name = "bbsId") Long bbsId,
-      @RequestParam(name = "page", defaultValue = "1") int currentPage) {
+      @RequestParam(value = "reqPage", defaultValue = "1") Integer reqPage,
+      @RequestParam(value = "reqRec", defaultValue = "10") Integer reqRec) {
 
+    ApiResponse<List<ReplyBbs>> res = null;
+    List<ReplyBbs> replyBbsList = replyBbsSVC.listAll(reqPage,reqRec, bbsId);
+    int totalRec = replyBbsSVC.getTotalReplyRecord(bbsId);
 
-    List<ReplyBbs> replyBbsList = replyBbsSVC.listAll(currentPage, bbsId);
-    int totalCnt = replyBbsSVC.getTotalReplyRecord(bbsId);
-
-    if (!replyBbsList.isEmpty()) {
-      ApiResponseData responseData = new ApiResponseData(replyBbsList, totalCnt);   //댓글목록과 총 댓글수를 다 가져오기 위함
-      return ApiResponse.of(ApiResponseCode.SUCCESS, responseData);
+    if (replyBbsList.size() != 0) {
+      res = ApiResponse.of(ApiResponseCode.SUCCESS, replyBbsList, totalRec);
     } else {
       throw new BusinessException(ApiResponseCode.ENTITY_NOT_FOUND, null);
     }
+    return res;
   }
 
   //댓글 등록
@@ -206,8 +206,6 @@ public class ApiReplyBbsController {
       throw new BusinessException(ApiResponseCode.VALIDATION_ERROR, khUtil.getValidChkMap(bindingResult));
     }
 
-
-
     ReplyBbs replyBbs = new ReplyBbs();
     BeanUtils.copyProperties(reqUpdate, replyBbs);
     int rows = replyBbsSVC.updateById(rid, replyBbs);
@@ -232,6 +230,16 @@ public class ApiReplyBbsController {
     } else {
       res = ApiResponse.of(ApiResponseCode.ENTITY_NOT_FOUND, null);
     }
+    return res;
+  }
+
+  @GetMapping("/totalCnt/{bbsId}")
+  public ApiResponse<Integer> totalCnt(@PathVariable(name = "bbsId") Long bbsId){
+    ApiResponse<Integer> res = null;
+    Integer totalRec = replyBbsSVC.getTotalReplyRecord(bbsId);
+
+    res = ApiResponse.of(ApiResponseCode.SUCCESS,null,totalRec);
+
     return res;
   }
 }

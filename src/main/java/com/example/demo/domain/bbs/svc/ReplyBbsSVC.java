@@ -11,7 +11,7 @@ public interface ReplyBbsSVC {
   Long save(ReplyBbs replyBbs);
 
   //댓글목록
-  List<ReplyBbs> listAll(int currentPage, Long bbsId);
+  List<ReplyBbs> listAll(int reqPage, int reqRec, Long bbsId);
 
   //댓글조회
   Optional<ReplyBbs> findById(Long replyId);

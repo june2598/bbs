@@ -1,31 +1,28 @@
-import { ajax } from '/js/common.js';
+import { ajax, PaginationUI } from '/js/common.js';
 
-function getPageFromUrl() {
-  const urlParams = new URLSearchParams(window.location.search);
-  return parseInt(urlParams.get('page')) || 1; // 문자열로 받아오기떄문에 변환을 해줘야함. 기본값은 1
-}
-async function findAllComment() {
-  const page = getPageFromUrl();
-  const bbsId = document.getElementById('bbsId').value; // 게시글 번호 가져오기
-  const url = `http://localhost:9070/api/replybbs/${bbsId}?page=${page}`; // 댓글 API URL
-  console.log('Fetching comments from URL:', url);
+//댓글 목록
 
+const getReplyList = async (bbsId, reqPage, reqRec) => {
+  const url = `/api/replybbs/${bbsId}?reqPage=${reqPage}&reqRec=${reqRec}`; // 댓글 조회 API URL
+  
   try {
-    const comments = await ajax.get(url); // 댓글 목록 가져오기
-    console.log('Comments:', comments);
-    displayComments(comments); // 댓글 목록을 화면에 표시
-    createPagenation(comments.body.totalCnt, page);
-  } catch (error) {
-    console.error(error.message);
+    const comments = await ajax.get(url);
+    if (comments && comments.header.rtcd === 'S00') {
+      displayComments(comments);  // 댓글을 화면에 출력하는 함수 호출
+    } else {
+      console.log('Error:', comments.header.rtmsg);
+    }
+  } catch (err) {
+    console.error('댓글 조회 중 오류 발생:', err);
   }
-}
+};
 
+//댓글 목록 화면
 function displayComments(response) {
   const replyWrap = document.getElementById('replyWrap'); // 댓글을 표시할 요소
   replyWrap.innerHTML = ''; // 기존 댓글 초기화
 
-  const comments = response.body.comments; // response.body에서 댓글 목록 가져오기
-  console.log('displayComments의 comments:', comments);
+  const comments = response.body; // response.body에서 댓글 목록 가져오기
 
   if (comments && comments.length > 0) {
     comments.forEach(comment => {
@@ -38,116 +35,17 @@ function displayComments(response) {
 }
 
 
-//현재 페이지 버튼 비활성화 시키는 함수
-function disableActiveButton() {        
-  const activeButton = document.querySelector('.active');
-  if (activeButton) {
-    activeButton.disabled = true; // active 클래스를 가진 버튼 비활성화
-  }
-}
-
-//매개변수로 총 댓글수 (totalCnt) 와 현재 페이지 (currentPage) 를 받음 
-function createPagenation(totalCnt, currentPage) {
-  const paginationWrap = document.getElementById('replyPaging');
-  paginationWrap.innerHTML = '';//기존 페이징 초기화
-
-  const  paginationSize = 5; // 페이지 네비게이션에서 보여줄 페이지 수
-  const commentsPerPage = 10; // 1페이지당 댓글 수
-  console.log('setup에서의 totalCnt', totalCnt);
-  const totalPages = Math.ceil(totalCnt / commentsPerPage); // 총 페이지 수
-  console.log('setup에서의 totalPages:', totalPages);
-  console.log('setup에서의 currentPage:', currentPage);
-
-  const startPage = Math.floor((currentPage - 1) /  paginationSize) *  paginationSize + 1;
-  const endPage = Math.min(startPage +  paginationSize - 1, totalPages);
-  console.log('setup에서의 startPage:', startPage);
-  console.log('setup에서의 endPage:', endPage);
-
-    // 처음 버튼 추가
-    if (startPage > 1) {
-      const goFirstButton = document.createElement('button');
-      goFirstButton.textContent = '<<';
-      goFirstButton.addEventListener('click', () => {
-        window.history.pushState({}, '', `?page=1`);
-        findAllComment(1); // 첫 페이지의 댓글 목록 불러오기
-      });
-      paginationWrap.appendChild(goFirstButton);
-    }
-
-      // 이전 버튼 추가
-  if (startPage > 1) {
-    const goPrevButton = document.createElement('button');
-    goPrevButton.textContent = '<';
-    goPrevButton.addEventListener('click', () => {
-      const newPage = startPage - 1; // 이전 페이지 번호
-      window.history.pushState({}, '', `?page=${newPage}`);
-      findAllComment(newPage); // 이전 페이지의 댓글 목록 불러오기
-    });
-
-    //prevButton을 paginationWrap의 첫 번째 자식 요소 앞에 삽입. 즉, 페이지네이션의 가장 왼쪽에 이전 페이지 버튼을 추가.
-    paginationWrap.appendChild(goPrevButton);
-  }
-
-  //페이지 버튼 생성
-
-
-  for (let i = startPage; i <= endPage; i++) {
-    const paginationButton = document.createElement('button');
-    console.log(i);
-    paginationButton.innerText = i;
-    if (i === currentPage) {
-      paginationButton.classList.add('active');
-      disableActiveButton();
-    }
-    paginationButton.addEventListener('click', () => {
-      window.history.pushState({}, '', `?page=${i}`);
-      findAllComment();// 해당페이지의 댓글목록 불러오기
-    });
-    paginationWrap.appendChild(paginationButton);
-  }
-
-
-  // 다음 버튼 추가
-  if (endPage < totalPages) {
-    const goNextButton = document.createElement('button');
-    goNextButton.textContent = '>';
-    goNextButton.addEventListener('click', () => {
-      const newPage = endPage + 1; // 다음 페이지 번호
-      window.history.pushState({}, '', `?page=${newPage}`);
-      findAllComment(newPage); // 다음 페이지의 댓글 목록 불러오기
-    });
-    paginationWrap.appendChild(goNextButton);
-  }
-
-    // 마지막 버튼 추가
-    if (endPage < totalPages) {
-      const goLastButton = document.createElement('button');
-      goLastButton.textContent = '>>';
-      goLastButton.addEventListener('click', () => {
-        window.history.pushState({}, '', `?page=${totalPages}`);
-        findAllComment(totalPages); // 마지막 페이지의 댓글 목록 불러오기
-      });
-      paginationWrap.appendChild(goLastButton);
-    }
-  disableActiveButton();  //현재 페이지 비활성화
-}
-
-
-// 페이지가 로드될 때 댓글 목록을 불러오기
-window.onload = function () {
-  findAllComment();
-};
 // 댓글 추가 기능
 document.getElementById('btnAdd').addEventListener('click', async () => {
 
   const textarea = document.getElementById('comment'); // textarea
   const errorMessageDiv = document.getElementById('error-message'); // 에러 메시지 div
-  const errorBlankArea = document.getElementById('errorBlankArea');
+  // const errorBlankArea = document.getElementById('errorBlankArea');
 
   // 유효성 체크 (textarea가 비었는지)
   if (textarea.value.trim() === '') { // 댓글란이 공백인 경우
     errorMessageDiv.textContent = '댓글을 입력해주세요.'; // 에러 메시지 설정
-    errorBlankArea.style.display = 'block';
+    // errorBlankArea.style.display = 'block';
     errorMessageDiv.style.display = 'block'; // 에러 메시지 표시
     return;
   } else {
@@ -164,7 +62,7 @@ document.getElementById('btnAdd').addEventListener('click', async () => {
   try {
     await ajax.post(url, data); // AJAX POST 요청
     document.getElementById('comment').value = ''; // 댓글 입력란 초기화
-    findAllComment(); // 댓글 목록 새로 고침
+    getReplyList(); // 댓글 목록 새로 고침
   } catch (error) {
     console.error(error.message);
   }
@@ -201,7 +99,7 @@ replyWrap.addEventListener('click', async (e) => {
 
     try {
       await ajax.delete(`http://localhost:9070/api/replybbs/${replyId}`); // ajax함수: delete 요청
-      findAllComment(); // 댓글 목록 새로 고침
+      getReplyList(); // 댓글 목록 새로 고침
     } catch (error) {
       console.error(error.message);
     }
@@ -259,10 +157,6 @@ function createLiReadMode(comment) {
 
   //userNickName과 comment.writer(댓글작성자)가 같다면 isWriter : true. 이를 이용해 수정/삭제버튼 유무를 결정
   const isWriter = userNickname === comment.writer;
-
-  console.log('로그인 유저 별칭:', userNickname);
-  console.log('댓글 작성자 확인:', isWriter);
-
   const createdAt = new Date(comment.cdate); // cdate를 사용하여 날짜 객체 생성
   const formattedDate = `${createdAt.getFullYear()}년 ${createdAt.getMonth() + 1}월 ${createdAt.getDate()}일 ${createdAt.getHours()}:${createdAt.getMinutes().toString().padStart(2, '0')}`;
 
@@ -301,24 +195,57 @@ function createLiModifyMode(text, replyId, writer, cdate, udate) {
   return $li;
 }
 
-//게시글 수정
+
 const btnUpdateEle = document.getElementById('btnUpdate');
 const btnDeleteEle = document.getElementById('btnDelete');
 const bbsIdEle = document.getElementById('bbsId');
 const bbsId = bbsIdEle.value;
 
+
+//화면에 구현되는 부분
+
+(async () => {
+  const bbsId = document.getElementById('bbsId').value;
+  const url = `/api/replybbs/totalCnt/${bbsId}`;
+  try {
+    const result = await ajax.get(url);
+
+    const totalRecords = result.totalCnt; // 전체 레코드수
+    const recordsPerPage = 10;            // 페이지당 레코드수
+    const pagesPerPage = 5;              // 한페이지당 페이지수
+
+    const handlePageChange = (reqPage) => {
+      return getReplyList(bbsId, reqPage, recordsPerPage);
+    };
+
+
+    // Pagination UI 초기화
+    var pagination = new PaginationUI('reply_pagenation', handlePageChange);
+
+    pagination.setTotalRecords(totalRecords);
+    pagination.setRecordsPerPage(recordsPerPage);
+    pagination.setPagesPerPage(pagesPerPage);
+
+    // 첫페이지 가져오기
+    pagination.handleFirstClick();
+
+  } catch (err) {
+    console.error(err);
+  }
+})();
+
+//게시글 수정
 btnUpdateEle.addEventListener('click', e => {
-  console.log('수정버튼 클릭됨');
   location.href = `/bbs/${bbsId}/edit`; // 올바른 URL로 수정
 }, false);
 
 //게시글 삭제
 
 btnDeleteEle.addEventListener('click', e => {
-  console.log('삭제버튼 클릭됨');
   if (!confirm('삭제하시겠습니까?')) return;
   location.href = `/bbs/${bbsId}/del`; // 절대 경로로 수정
 }, false);
+
 
 
 

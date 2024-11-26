@@ -1,6 +1,15 @@
 //전체선택 체크박스 체크,해제에 따른 게시글 체크박스 전체선택/해제 동기화
 const selectAllEle = document.getElementById('selectAll');
 const selectEle = document.querySelectorAll("input[name='bbsIds']");
+const activeBtnEle = document.querySelector('.active');
+
+
+//active 페이징은 클릭이벤트를 막음
+activeBtnEle.addEventListener('click', e =>{
+    e.preventDefault();
+    return false;
+},false);
+
 
 selectAllEle.addEventListener('click', e => {
     const Checked = selectAllEle.checked;
@@ -65,3 +74,4 @@ btnDelsEle.addEventListener('click', e => {
     if (!confirm('삭제하시겠습니까')) return;
     document.getElementById('frm').submit();
 });
+

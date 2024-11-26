@@ -52,39 +52,16 @@ public class BbsDAOImpl implements BbsDAO {
     return list;
   }
 
-//  @Override
-//  public List<Bbs> listAll(int reqPage, int reqRec) {
-//    StringBuffer sql = new StringBuffer();
-//    sql.append(" select * " );
-//    sql.append("     from bbs " );
-//    sql.append(" order by bbs_id desc ");
-//    sql.append(" offset (:reqPage-1) * :reqRec rows fetch first :reqRec rows only " );
-//
-//    Map<String, Integer> param = Map.of("reqPage", reqPage, "reqRec", reqRec);
-//    List<Bbs> list = template.query(sql.toString(), param, new BeanPropertyRowMapper<>(Bbs.class));
-//    return list;
-//  }
-
   @Override
-  public List<Bbs> listAll(int page) {
-    int pageSize = 5;
-    int startRow = (page - 1) * pageSize + 1; // 시작 행 번호
-    int endRow = page * pageSize; // 끝 행 번호
-
-    // SQL 쿼리
+  public List<Bbs> listAll(int reqPage, int reqRec) {
     StringBuffer sql = new StringBuffer();
-    sql.append("SELECT * FROM ( ");
-    sql.append("    SELECT bbs_id, writer, title, contents, cdate, udate, ");
-    sql.append("           ROW_NUMBER() OVER (ORDER BY bbs_id DESC) AS rn ");
-    sql.append("    FROM bbs ");
-    sql.append(") WHERE rn BETWEEN :startRow AND :endRow");
+    sql.append(" select * " );
+    sql.append("     from bbs " );
+    sql.append(" order by bbs_id desc ");
+    sql.append(" offset (:reqPage-1) * :reqRec rows fetch first :reqRec rows only " );
 
-    MapSqlParameterSource param = new MapSqlParameterSource();
-    param.addValue("startRow", startRow);
-    param.addValue("endRow", endRow);
-
-    //db요청
-    List<Bbs> list = template.query(sql.toString(), param, new BeanPropertyRowMapper<>(Bbs.class)); // Bbs 객체로 매핑
+    Map<String, Integer> param = Map.of("reqPage", reqPage, "reqRec", reqRec);
+    List<Bbs> list = template.query(sql.toString(), param, new BeanPropertyRowMapper<>(Bbs.class));
     return list;
   }
 

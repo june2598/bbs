@@ -58,150 +58,34 @@
     </form>
     <div class="paging-button-wrap">
       <!--컨트롤러 모델객체로 부터 받은 totalRecords를 여기에 심어둠-->
-      <div class="paginationWrap" id="pagination" th:data-total-records="${totalRecords}">
+      <!-- <div class="paginationWrap" id="pagination" th:data-total-records="${totalRecords}"> -->
         <!-- 여기에 페이징이 들어와야 됩니다.-->
-
-      </div>
-      <div class="buttonWrap">
-        <button id="btnHome">초기화면</button>
-        <button id="btnDels" th:if="${!session.isEmpty()}">삭제</button>
-        <button class="btnAdd" id="btnAdd" th:if="${!session.isEmpty()}">게시글작성</button>
+        <div class="pagination" th:data-total-records="${totalRecords}">
+            <span th:if="${reqPage > 1}">
+              <a th:href="@{/bbs(reqPage=1, reqRec=${reqRec})}"><< </a>
+                <a th:href="@{/bbs(reqPage=${reqPage - 1}, reqRec=${reqRec})}"> < </a>
+            </span>
+            <span th:each="pageNum : ${#numbers.sequence(startPage, endPage)}">
+                <a th:class="${pageNum == reqPage} ? 'active' : ''" 
+                   th:href="@{/bbs(reqPage=${pageNum}, reqRec=${reqRec})}" 
+                   th:text="${pageNum}">1</a>
+            </span>
+            <span th:if="${reqPage < totalPages}">
+                <a th:href="@{/bbs(reqPage=${reqPage + 1}, reqRec=${reqRec})}"> > </a>
+                <a th:href="@{/bbs(reqPage=${totalPages}, reqRec=${reqRec})}"> >> </a>
+            </span>
+        </div>
+        <div class="buttonWrap">
+          <button id="btnHome">초기화면</button>
+          <button id="btnDels" th:if="${!session.isEmpty()}">삭제</button>
+          <button class="btnAdd" id="btnAdd" th:if="${!session.isEmpty()}">게시글작성</button>
+        </div>
       </div>
     </div>
-  </div>
-  <script>
-    class Pagination {
-      constructor(totalRecords, recordsPerPage, pagesPerPage) {
-        this.totalRecords = totalRecords;
-        this.recordsPerPage = recordsPerPage; //한페이지에 게시글 수
-        this.totalPage = Math.ceil(this.totalRecords / this.recordsPerPage);
-        this.pagesPerPage = pagesPerPage;
-        this.currentPage = 1;
-        this.currentPageGroupStart = 1;
-        this.queryString = new URLSearchParams(window.location.search);        // URL의 쿼리 문자열 파라미터 (ex: http://localhost:9070/bbs?page=2 이 있으면 ?뒤의 부분)
+  <script type="module">
+    import { PaginationUI} from '/js/common.js';
 
 
-        //새로고침시 값이 초기화 되기떄문에, URL의 쿼리문자열 에서 page 값을 가져옴
-        if (this.queryString.has('page')) {
-          this.currentPage = parseInt(this.queryString.get('page'));
-        // page 쿼리스트링 부분이 없다는건 초기화면 = 1페이지라는 뜻이므로 이를 명확히 잡아줌
-        } else {
-          this.currentPage = 1;
-        }
-        this.currentPageGroupStart = Math.floor((this.currentPage - 1) / this.pagesPerPage) * this.pagesPerPage + 1;
-      }
-
-      //data : 보여줄데이터(게시글) 배열로되어있음
-      //queryString : URL 파라미터를 가져옴. URL 파라미터에 page가 있을경우 currentPagemf를 해당 page값으로 교체
-      goToPage(pageNumber) {
-        this.currentPage = pageNumber;
-        this.currentPageGroupStart = Math.floor((pageNumber - 1) / this.pagesPerPage) * this.pagesPerPage + 1;
-        console.log('goToPage후 groupstart', this.currentPageGroupStart);
-
-
-        // currentPage 값을 로컬 스토리지에 저장해서 새로고침시에 유실되지 않게
-        localStorage.setItem('currentPage', this.currentPage);
-
-        let url = new URL(window.location.href);        // 만약 2페이지에 있다면 http://localhost:9070/bbs?page=2 
-        url.searchParams.set('page', pageNumber);       // 'page' 쿼리 파라미터를 설정. http://localhost:9070/bbs?page={pageNumber}
-        window.location.href = url.toString();          // 수정된 URL로 페이지를 리다이렉션
-      }
-
-      createPagenation() {
-        const paginationContainer = document.createElement('div');
-        paginationContainer.classList.add('pagination');
-        //처음 버튼 생성 (1 2 3 4 5 그룹일땐 필요없음)
-        if (this.currentPageGroupStart > 1) {
-          const goFirstButton = document.createElement('button');
-          goFirstButton.innerText = '<<';
-          goFirstButton.classList.add('page-btn');
-          goFirstButton.disabled = this.currentPage === 1;
-          goFirstButton.addEventListener('click', () => {
-            this.goToPage(1);
-          });
-          paginationContainer.appendChild(goFirstButton);
-        }
-
-        // 이전 버튼 생성 (1 2 3 4 5 그룹일땐 필요없음)
-        if (this.currentPageGroupStart > 1) {
-          const goPrevButton = document.createElement('button');
-          goPrevButton.innerText = '<';
-          goPrevButton.classList.add('page-btn');
-          goPrevButton.disabled = this.currentPage === 1;
-          goPrevButton.addEventListener('click', () => {
-            //유효성 체크
-            const newPage = this.currentPageGroupStart - 1;
-            if (newPage >= 1) {
-              this.goToPage(newPage);
-            }
-          });
-          paginationContainer.appendChild(goPrevButton);
-        }
-
-        console.log('버튼생성시점의 groupstart', this.currentPageGroupStart);
-        console.log('버튼생성시점의 pagePerPage', this.pagesPerPage);
-        console.log('버튼생성시점의 total', this.totalPage);
-
-        //페이지 버튼 생성 루프
-        for (let i = this.currentPageGroupStart; i < this.currentPageGroupStart + this.pagesPerPage && i <= this.totalPage; i++) {
-          const paginationButton = document.createElement('button');
-          paginationButton.innerText = i;
-          paginationButton.classList.add('page-btn');
-          paginationButton.addEventListener('click', () => {
-            this.goToPage(i);
-          });
-
-          //현재 페이지라면 페이지 버튼 disabled
-          if (i === this.currentPage) {
-            paginationButton.setAttribute('id', 'active');
-            paginationButton.disabled = true;
-          }
-          paginationContainer.appendChild(paginationButton);
-        }
-
-        // 다음 버튼 생성 (마지막 그룹일땐 필요없음)
-        if (this.currentPageGroupStart + this.pagesPerPage <= this.totalPage) {
-          const goNextButton = document.createElement('button');
-          goNextButton.innerText = '>';
-          goNextButton.classList.add('page-btn');
-          goNextButton.disabled = this.currentPage === this.totalPage;
-          goNextButton.addEventListener('click', () => {
-            const newPage = this.currentPageGroupStart + this.pagesPerPage;
-            //유효성 체크
-            if (newPage <= this.totalPage) {
-              this.goToPage(newPage);
-            }
-          });
-          paginationContainer.appendChild(goNextButton);
-        }
-
-        //마지막 버튼 생성 (마지막 그룹일땐 필요없음)
-
-        if (this.currentPageGroupStart + this.pagesPerPage <= this.totalPage) {
-          const goLastButton = document.createElement('button');
-          goLastButton.innerText = '>>';
-          goLastButton.classList.add('page-btn');
-          goLastButton.disabled = this.currentPage === this.totalPage;
-          goLastButton.addEventListener('click', () => {
-            this.goToPage(this.totalPage);
-
-
-          });
-          paginationContainer.appendChild(goLastButton);
-        }
-        return paginationContainer;
-      }
-    }
-    // 페이지 로드 후 페이징 생성
-    // document.addEventListener('DOMContentLoaded', () => {
-    const totalRecords = parseInt(document.getElementById('pagination').dataset.totalRecords);
-    const recordsPerPage = 5; // 한 페이지에 보여줄 게시글 수
-    const pagesPerPage = 5; // 한 페이지 그룹에 보여줄 페이지 수
-    const pagination = new Pagination(totalRecords, recordsPerPage, pagesPerPage);
-    const paginationElement = pagination.createPagenation();
-    document.getElementById('pagination').appendChild(paginationElement); // 생성된 페이징 요소를 pagination div에 추가
-    console.log(totalRecords);
-    // });
   </script>
 </body>
 

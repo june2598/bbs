@@ -13,11 +13,8 @@ public interface BbsSVC {
 //목록
 List<Bbs> listAll();
 
-//
-//List<Bbs> listAll(int reqPage, int reqRec);
-
-  //페이지당 목록
-  List<Bbs> listAll(int page);
+//페이지 당 목록
+List<Bbs> listAll(int reqPage, int reqRec);
 
 //  //조회
   Optional<Bbs> listById(Long bbsId);

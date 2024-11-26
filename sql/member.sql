@@ -4,10 +4,11 @@ drop table member;
 drop sequence member_member_id_seq;
 
 create table member (
-    member_id   number,         --내부 관리 아이디
-    email       varchar2(50),   --로그인 아이디
-    passwd      varchar2(12),   --로그인 비밀번호
-    nickname    varchar2(30)   --별칭
+    member_id   number,                             --내부 관리 아이디
+    email       varchar2(50),                       --로그인 아이디
+    passwd      varchar2(12),                       --로그인 비밀번호
+    nickname    varchar2(30),                       --별칭
+    gubun       varchar2(15) default 'general'      --권한
 );
 
 --기본키생성
@@ -31,6 +32,13 @@ insert into member (member_id, email, passwd, nickname)
 values(member_member_id_seq.nextval, 'test4@kh.com', 12344, '별칭4');
 insert into member (member_id, email, passwd, nickname)
 values(member_member_id_seq.nextval, 'test5@kh.com', 12345, '별칭5');
+
+
+--수정(admin권한)
+
+UPDATE member
+SET gubun = 'admin'
+WHERE email = 'test1@kh.com';
 
 commit;
 

@@ -7,19 +7,6 @@
       margin: 0;
       padding:20px;
     }
-/* 
-    .userInfo,
-   
-    {
-      display: flex;
-      flex-direction: column;
-      background-color: #fff;
-      margin: 10px;
-      padding: 10px;
-      width: 15vw;
-      height: 20vh;
-      flex: 0 1 auto;
-    } */
 
     .userInfo,
     .nonLogin {
@@ -109,16 +96,30 @@
       background-color: #0056b3;
     }
 
+    .paging-button-wrap{
+      display: flex;
+      flex-direction: column;
+
+    }
     .pagination{
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 50px;
+      margin: 10px auto;
     }
 
-    .pagination button{
-      width: 30px;
-      height: 30px;
-      margin: 5px;
+    .pagination a{
+      padding: 5px 10px;
+      margin: 0 5px;
+      text-decoration: none;
+      color: #000;
+      border: 1px solid #ccc;
+      border-radius: 3px;
     }
 
-    #active {
-      color: red; /* 비활성화된 버튼의 글자색 */
-  }
+    .pagination a.active {
+      background-color: #007bff;
+      color: #fff;
+      cursor: default;
+    }
