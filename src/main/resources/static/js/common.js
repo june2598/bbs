@@ -110,10 +110,12 @@ function getBytesSize(str) {
 
 //목록
 const btnListAllEle = document.getElementById('btnListAll');
-btnListAllEle.addEventListener('click', e => {
-    console.log('목록버튼 클릭됨');
-    location.href = '/bbs';
-}, false);
+if(btnListAllEle){
+  btnListAllEle.addEventListener('click', e => {
+      console.log('목록버튼 클릭됨');
+      location.href = '/bbs';
+  }, false);
+}
 
 
 /*-----------------------------------------------------------------------*

@@ -96,14 +96,12 @@ replyWrap.addEventListener('click', async (e) => {
   } else if (e.target.classList.contains('delBtn')) {
     // 삭제 버튼 클릭
     if (!confirm('삭제하시겠습니까?')) return;
-
     try {
       await ajax.delete(`http://localhost:9070/api/replybbs/${replyId}`); // ajax함수: delete 요청
       getReplyList(); // 댓글 목록 새로 고침
     } catch (error) {
       console.error(error.message);
     }
-
 
   } else if (e.target.classList.contains('saveBtn')) {
     // 저장 버튼 클릭
@@ -194,8 +192,6 @@ function createLiModifyMode(text, replyId, writer, cdate, udate) {
     </span>`;
   return $li;
 }
-
-
 const btnUpdateEle = document.getElementById('btnUpdate');
 const btnDeleteEle = document.getElementById('btnDelete');
 const bbsIdEle = document.getElementById('bbsId');
@@ -203,6 +199,23 @@ const bbsId = bbsIdEle.value;
 
 
 //화면에 구현되는 부분
+
+//게시글 수정
+if(btnUpdateEle){
+  btnUpdateEle.addEventListener('click', e => {
+    console.log('btnUpdateEle = ', btnUpdateEle);
+    location.href = `/bbs/${bbsId}/edit`; // 올바른 URL로 수정
+  }, false);
+}
+
+//게시글 삭제
+if(btnDeleteEle){
+  btnDeleteEle.addEventListener('click', e => {
+    if (!confirm('삭제하시겠습니까?')) return;
+    location.href = `/bbs/${bbsId}/del`; // 절대 경로로 수정
+  }, false);
+}
+
 
 (async () => {
   const bbsId = document.getElementById('bbsId').value;
@@ -233,25 +246,3 @@ const bbsId = bbsIdEle.value;
     console.error(err);
   }
 })();
-
-//게시글 수정
-btnUpdateEle.addEventListener('click', e => {
-  location.href = `/bbs/${bbsId}/edit`; // 올바른 URL로 수정
-}, false);
-
-//게시글 삭제
-
-btnDeleteEle.addEventListener('click', e => {
-  if (!confirm('삭제하시겠습니까?')) return;
-  location.href = `/bbs/${bbsId}/del`; // 절대 경로로 수정
-}, false);
-
-
-
-
-
-
-
-
-
-

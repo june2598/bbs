@@ -10,5 +10,5 @@ const bbsIdEle = document.getElementById('bbsId');
 //취소
 btnCancelEle.addEventListener('click', e => {
     //history.go(-1); 브라우저에서 뒤로가기 버튼
-    location.href = `/bbs/${bbsIdEle.value}/`;
+    location.href = `/bbs/${bbsIdEle.value}`;
 }, false);
